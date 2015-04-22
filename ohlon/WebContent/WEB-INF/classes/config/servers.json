@@ -1,0 +1,16 @@
+{
+    "servers": {
+        "ephesoft-3x": {
+            "label": "Ephesoft 3.x",
+            "jolokia": "http://172.16.22.246:8080/jolokia",
+            "dcma": "http://172.16.22.246:8080/dcma",
+            "data": "http://172.16.22.246:8080/dcma-batches/ephesoft-system-folder"
+        },
+        "ephesoft-4x": {
+            "label": "Ephesoft 4.x",
+            "jolokia": "http://172.16.22.244:8080/jolokia",
+            "dcma": "http://172.16.22.244:8080/dcma",
+            "data": "http://172.16.22.244:8080/dcma-batches/ephesoft-system-folder"
+        }
+    }
+}

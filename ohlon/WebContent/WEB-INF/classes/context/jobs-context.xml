@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	   					   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="ohlon.job.notification.trigger" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="ohlon.job.notification.trigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="ohlon.job.notification.task" />
+		<property name="cronExpression" value="${notification.cron}" />
+	</bean>
+
+	<bean id="ohlon.job.notification.task" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="com.ohlon.job.Notification" />
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="mailSender" value-ref="ohlon.mailSender" />
+				<entry key="serverService" value-ref="ohlon.serverService" />
+				<entry key="properties" value-ref="ohlonProperties" />
+			</map>
+		</property>
+	</bean>
+
+</beans>

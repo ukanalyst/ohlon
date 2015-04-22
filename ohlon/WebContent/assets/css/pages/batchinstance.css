@@ -1,0 +1,67 @@
+.form-group {
+	padding: 5px 10px;
+}
+
+#modules th:first-child, #plugins th:first-child {
+	width: 360px;
+}
+
+.progress-bar-waiting {
+	background-color: transparent;
+}
+
+.progress {
+	height: 25px;
+	margin-top: 20px;
+}
+
+#modules-details {
+	display: table;
+	width: 100%;
+}
+
+#modules-details .list-group.ephesoft-module {
+	display: table-cell;
+}
+
+.list-group {
+	margin-top: 10px;
+	padding: 0px 5px;
+}
+
+#listoffiles .list-group-item {
+	font-size: smaller;
+}
+
+#previewfile {
+	text-align: center;
+}
+
+#previewfile .prettyprint {
+	text-align: left;
+}
+
+#previewfile img {
+	max-width: 100%;
+}
+
+#previewfile form {
+	min-height: 100px;
+	margin-top: 55px;
+}
+
+del {
+	text-decoration: none;
+	color: #b30000;
+	background: #fadad7;
+}
+
+ins {
+	background: #eaf2c2;
+	color: #406619;
+	text-decoration: none;
+}
+
+pre.compare-file {
+	text-align: left;
+}
