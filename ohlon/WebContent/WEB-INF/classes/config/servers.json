@@ -11,6 +11,18 @@
             "jolokia": "http://172.16.22.244:8080/jolokia",
             "dcma": "http://172.16.22.244:8080/dcma",
             "data": "http://172.16.22.244:8080/dcma-batches/ephesoft-system-folder"
+        },
+        "docean-4x-01": {
+            "label": "Cluster Node 01",
+            "jolokia": "http://46.101.26.123:8080/jolokia",
+            "dcma": "http://46.101.26.123:8080/dcma",
+            "data": "http://46.101.26.123:8080/dcma-batches/ephesoft-system-folder"
+        },
+        "docean-4x-02": {
+            "label": "Cluster Node 02",
+            "jolokia": "http://46.101.21.33:8080/jolokia",
+            "dcma": "http://46.101.21.33:8080/dcma",
+            "data": "http://46.101.21.33:8080/dcma-batches/ephesoft-system-folder"
         }
     }
 }

@@ -161,78 +161,85 @@ public class ReportingStats {
 				}
 			}
 
-			// Query the report database to get the number of pages and
-			// documents
-			sql = "SELECT COUNT(DISTINCT doc_identifier) AS NBOFDOCS, COUNT(DISTINCT page_identifier) AS NBOFPAGES, batch_instance_id FROM finished_batch_xml_data WHERE batch_instance_id IN (";
-			boolean isFirst = true;
-			for (String BIIdentifier : listOfIdentifiers) {
-				if (!isFirst)
-					sql += ",";
-				sql += "'" + BIIdentifier + "'";
-				isFirst = false;
-			}
-			sql += ") GROUP BY batch_instance_id;";
+			if (listOfIdentifiers.size() > 0) {
+				// Query the report database to get the number of pages and
+				// documents
+				sql = "SELECT COUNT(DISTINCT doc_identifier) AS NBOFDOCS, COUNT(DISTINCT page_identifier) AS NBOFPAGES, batch_instance_id FROM finished_batch_xml_data WHERE batch_instance_id IN (";
+				boolean isFirst = true;
+				for (String BIIdentifier : listOfIdentifiers) {
+					if (!isFirst)
+						sql += ",";
+					sql += "'" + BIIdentifier + "'";
+					isFirst = false;
+				}
+				sql += ") GROUP BY batch_instance_id;";
 
-			Connection c2 = DBUtils.getReportDBConnection();
-			PreparedStatement statement2 = c2.prepareStatement(sql);
-			ResultSet rs2 = statement2.executeQuery();
+				Connection c2 = DBUtils.getReportDBConnection();
+				PreparedStatement statement2 = c2.prepareStatement(sql);
+				ResultSet rs2 = statement2.executeQuery();
 
-			Map<String, Integer> nbOfDocs = new HashMap<String, Integer>();
-			Map<String, Integer> nbOfPages = new HashMap<String, Integer>();
+				Map<String, Integer> nbOfDocs = new HashMap<String, Integer>();
+				Map<String, Integer> nbOfPages = new HashMap<String, Integer>();
 
-			while (rs2.next()) {
-				nbOfDocs.put(rs2.getString("batch_instance_id"), rs2.getInt("NBOFDOCS"));
-				nbOfPages.put(rs2.getString("batch_instance_id"), rs2.getInt("NBOFPAGES"));
-			}
-
-			// Browse the data
-			for (String artifactId : data.keySet()) {
-
-				Map<String, Object> artifactData = data.get(artifactId);
-
-				JSONObject m = new JSONObject();
-				m.put("WORKFLOW_NAME", artifactData.get("NAME"));
-				m.put("WORKFLOW_TYPE", artifactData.get("TYPE"));
-
-				int nbOfBatchInstances = artifactData.get("IDENTIFIER").toString().split("/").length;
-				double avgDuration = (Integer) artifactData.get("TOTALDURATION") / nbOfBatchInstances;
-
-				m.put("AVGDURATION", avgDuration);
-				m.put("MINDURATION", artifactData.get("MINDURATION"));
-				m.put("MAXDURATION", artifactData.get("MAXDURATION"));
-
-				int _nbOfPages = 0;
-				int _nbOfDocs = 0;
-				List<Double> docps = new ArrayList<Double>();
-				List<Double> pageps = new ArrayList<Double>();
-				for (String _identifier : artifactData.get("IDENTIFIER").toString().split("/")) {
-					_nbOfDocs += nbOfDocs.get(_identifier);
-					_nbOfPages += nbOfPages.get(_identifier);
-					docps.add((double) (1000.0 * nbOfDocs.get(_identifier) / stepDuration.get(artifactId).get(_identifier)));
-					pageps.add((double) (1000.0 * nbOfPages.get(_identifier) / stepDuration.get(artifactId).get(_identifier)));
+				while (rs2.next()) {
+					nbOfDocs.put(rs2.getString("batch_instance_id"), rs2.getInt("NBOFDOCS"));
+					nbOfPages.put(rs2.getString("batch_instance_id"), rs2.getInt("NBOFPAGES"));
 				}
 
-				m.put("NBOFPAGES", _nbOfPages);
-				m.put("NBOFDOCUMENTS", _nbOfDocs);
-				m.put("NBOFBATCHINSTANCES", nbOfBatchInstances);
+				// Browse the data
+				for (String artifactId : data.keySet()) {
 
-				m.put("AVGDOCPS", ListUtils.average(docps));
-				m.put("MINDOCPS", ListUtils.minimum(docps));
-				m.put("MAXDOCPS", ListUtils.maximum(docps));
-				m.put("AVGPAGEPS", ListUtils.average(pageps));
-				m.put("MINPAGEPS", ListUtils.minimum(pageps));
-				m.put("MAXPAGEPS", ListUtils.maximum(pageps));
-				captured.put(m);
+					Map<String, Object> artifactData = data.get(artifactId);
+
+					JSONObject m = new JSONObject();
+					m.put("WORKFLOW_NAME", artifactData.get("NAME"));
+					m.put("WORKFLOW_TYPE", artifactData.get("TYPE"));
+
+					int nbOfBatchInstances = artifactData.get("IDENTIFIER").toString().split("/").length;
+					double avgDuration = (Integer) artifactData.get("TOTALDURATION") / nbOfBatchInstances;
+
+					m.put("AVGDURATION", avgDuration);
+					m.put("MINDURATION", artifactData.get("MINDURATION"));
+					m.put("MAXDURATION", artifactData.get("MAXDURATION"));
+
+					int _nbOfPages = 0;
+					int _nbOfDocs = 0;
+					List<Double> docps = new ArrayList<Double>();
+					List<Double> pageps = new ArrayList<Double>();
+					for (String _identifier : artifactData.get("IDENTIFIER").toString().split("/")) {
+						if (nbOfDocs.containsKey(_identifier) && nbOfPages.containsKey(_identifier)) {
+							_nbOfDocs += nbOfDocs.get(_identifier);
+							_nbOfPages += nbOfPages.get(_identifier);
+							docps.add((double) (1000.0 * nbOfDocs.get(_identifier) / stepDuration.get(artifactId).get(_identifier)));
+							pageps.add((double) (1000.0 * nbOfPages.get(_identifier) / stepDuration.get(artifactId).get(_identifier)));
+						}
+					}
+
+					m.put("NBOFPAGES", _nbOfPages);
+					m.put("NBOFDOCUMENTS", _nbOfDocs);
+					m.put("NBOFBATCHINSTANCES", nbOfBatchInstances);
+
+					m.put("AVGDOCPS", ListUtils.average(docps));
+					m.put("MINDOCPS", ListUtils.minimum(docps));
+					m.put("MAXDOCPS", ListUtils.maximum(docps));
+					m.put("AVGPAGEPS", ListUtils.average(pageps));
+					m.put("MINPAGEPS", ListUtils.minimum(pageps));
+					m.put("MAXPAGEPS", ListUtils.maximum(pageps));
+					captured.put(m);
+
+				}
+
+				// Close the query
+				rs2.close();
+				statement2.close();
+				c2.close();
 
 			}
 
 			// Close the query
 			rs.close();
-			rs2.close();
 			statement.close();
-			statement2.close();
 			c.close();
-			c2.close();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -626,7 +633,7 @@ public class ReportingStats {
 
 		if (module.startsWith("READY_FOR_"))
 			module = module.replaceAll("READY_FOR_", "");
-		
+
 		JSONArray captured = new JSONArray();
 		try {
 			Connection c = DBUtils.getReportDBConnection();
@@ -713,7 +720,7 @@ public class ReportingStats {
 
 		if (module.startsWith("READY_FOR_"))
 			module = module.replaceAll("READY_FOR_", "");
-		
+
 		JSONArray captured = new JSONArray();
 		try {
 			Connection c = DBUtils.getReportDBConnection();
