@@ -23,7 +23,7 @@
 
 	<!-- LDAP AUTHENTICATION -->
 
-	<ldap-server id="ldapServer" url="ldap://172.16.22.246:389/dc=bataon,dc=com" />
+	<ldap-server id="ldapServer" url="ldap://172.16.22.248:389/dc=bataon,dc=com" />
 
 	<beans:bean id="customAuthoritiesPopulator" class="com.ohlon.security.CustomLdapAuthoritiesPopulator" />
 

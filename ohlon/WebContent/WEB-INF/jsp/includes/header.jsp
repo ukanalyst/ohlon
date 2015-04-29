@@ -43,7 +43,7 @@ div[role='navigation'] .container {
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
 	<div class="container">
 		<div class="navbar-header">
-			<a target="_blank" href="http://www.bataon.com" class="navbar-brand">Ephesoft Monitoring.</a>
+			<a target="_blank" href="http://www.ohlon.com"><img style="padding:5px;" src="./assets/img/app-header.png" /></a>
 		</div>
 		<div class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
@@ -53,7 +53,6 @@ div[role='navigation'] .container {
 				<li><a href="./batchclass">Batch Class</a></li>
 				<li><a href="./batchinstance">Batch Instance</a></li>
 				<li><a href="./user">Manual Steps</a></li>
-				<li><a href="http://bataon.com">BataOn.com</a></li>
 
 			</ul>
 			<ul class="nav navbar-nav navbar-right">

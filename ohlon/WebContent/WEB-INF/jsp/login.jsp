@@ -3,6 +3,7 @@
 <html>
 <head>
 <title>Ephesoft Monitoring</title>
+<link rel="icon" type="image/ico" href="./assets/img/favicon.ico"/>
 <link rel="stylesheet" href="./assets/lib/bootstrap/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="./assets/css/keen-dashboards.css">
 <link rel="stylesheet" href="./assets/css/login.css">
@@ -42,7 +43,7 @@
 								</div>
 								<div class="row">
 									<div class="center-block">
-										<img class="profile-img" src="https://lh5.googleusercontent.com/-b0-k99FZlyE/AAAAAAAAAAI/AAAAAAAAAAA/eu7opA4byxI/photo.jpg?sz=120" alt="">
+										<img class="profile-img" src="./assets/img/app-login.png" alt="">
 									</div>
 								</div>
 								<div class="row">

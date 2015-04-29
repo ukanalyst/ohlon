@@ -6,8 +6,7 @@
 
 <div class="footer-bottom">
 	<div class="container">
-		<p class="pull-left">Copyright © Ephesoft Monitoring 2015. All
-			right reserved.</p>
+		<p class="pull-left">Copyright © Ohlon 2015. All right reserved.</p>
 		<div class="pull-right">
 			<!-- <ul class="nav nav-pills payments">
 				<li><i class="fa fa-cc-visa"></i></li>
