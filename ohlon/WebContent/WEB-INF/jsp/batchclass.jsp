@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Ephesoft Monitoring</title>
+<title>Ohlon</title>
 <script type="text/javascript">
 	var JOLOKIA_URL = "${jolokia}";
 </script>

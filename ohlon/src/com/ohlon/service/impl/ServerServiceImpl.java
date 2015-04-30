@@ -1,7 +1,11 @@
 package com.ohlon.service.impl;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -11,10 +15,12 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.stereotype.Service;
 
 import com.ohlon.domain.Server;
 import com.ohlon.service.ServerService;
 
+@Service("serverService")
 public class ServerServiceImpl implements ServerService {
 
 	private Log log = LogFactory.getLog(ServerServiceImpl.class);
@@ -22,25 +28,56 @@ public class ServerServiceImpl implements ServerService {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
+	private static Map<String, Server> servers = new HashMap<String, Server>();
+
 	@Override
-	public Set<Server> getAvailableServers() {
+	public List<Server> getAvailableServers() {
+
+		// Populate server list if required
+		if (ServerServiceImpl.servers.keySet().size() == 0)
+			populateServerList();
+
+		ArrayList<Server> list = new ArrayList<Server>(servers.values());
+		Collections.sort(list, new Comparator<Server>() {
+			public int compare(Server s1, Server s2) {
+				return s1.getId().compareTo(s2.getId());
+			}
+		});
+
+		return list;
+	}
+
+	@Override
+	public Server getServer(String serverId) {
+		// Populate server list if required
+		if (ServerServiceImpl.servers.keySet().size() == 0)
+			populateServerList();
+
+		return servers.get(serverId);
+	}
+
+	public void populateServerList() {
 		Resource resource = resourceLoader.getResource("classpath:config/servers.json");
-		Set<Server> result = new HashSet<Server>();
 		try {
 			String jsonData = IOUtils.toString(resource.getInputStream());
 			JSONObject data = new JSONObject(jsonData);
 			JSONObject servers = data.getJSONObject("servers");
-			JSONArray serverIds = servers.names();
+			JSONArray serverIdNames = servers.names();
+			List<String> serverIds = new ArrayList<String>();
 
-			for (int i = 0; i < serverIds.length(); i++) {
-				String serverId = serverIds.getString(i);
+			for (int i = 0; i < serverIdNames.length(); i++)
+				serverIds.add(serverIdNames.getString(i));
+
+			Collections.sort(serverIds);
+
+			for (String serverId : serverIds) {
 				log.debug("Load server: " + serverId);
-				result.add(new Server(serverId, servers.getJSONObject(serverId)));
+				Server server = new Server(serverId, servers.getJSONObject(serverId));
+				ServerServiceImpl.servers.put(serverId, server);
 			}
 
 		} catch (Exception e) {
 			log.error(e);
 		}
-		return result;
 	}
 }

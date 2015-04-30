@@ -1,10 +1,12 @@
 package com.ohlon.service;
 
-import java.util.Set;
+import java.util.List;
 
 import com.ohlon.domain.Server;
 
 public interface ServerService {
 
-	public Set<Server> getAvailableServers();
+	List<Server> getAvailableServers();
+
+	Server getServer(String serverId);
 }

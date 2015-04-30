@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Ephesoft Monitoring</title>
+<title>Ohlon</title>
 <link rel="icon" type="image/ico" href="./assets/img/favicon.ico"/>
 <link rel="stylesheet" href="assets/lib/bootstrap/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="assets/css/keen-dashboards.css">

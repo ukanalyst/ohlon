@@ -1,19 +1,25 @@
 package com.ohlon.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+
+import com.ohlon.domain.Server;
+import com.ohlon.service.ServerService;
 
 public abstract class AbstractController {
 
-	private JSONObject serverData = null;
+	private JSONArray serverData = null;
+
+	@Autowired
+	private ServerService serverService;
 
 	@Value("${batchinstance.hideDelay}")
 	private String batchinstanceHideDelay;
@@ -24,20 +30,16 @@ public abstract class AbstractController {
 	protected Map<String, Object> generateParams(String serverId) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		try {
-			JSONObject data = getServerData();
-			JSONObject servers = data.getJSONObject("servers");
-			JSONArray serverIds = servers.names();
-			JSONObject currentServer = null;
+			JSONArray servers = getServerData();
 			String currentId = serverId;
-			if (serverId != null && serverId.length() > 0 && servers.has(serverId))
-				currentServer = servers.getJSONObject(serverId);
-			else {
-				currentId = serverIds.getString(0);
-				currentServer = servers.getJSONObject(currentId);
+			Server currentServer = serverService.getServer(currentId);
+			if (currentServer == null) {
+				currentId = servers.getJSONObject(0).getString("id");
+				currentServer = serverService.getServer(currentId);
 			}
 
-			params.put("jolokia", currentServer.getString("jolokia"));
-			params.put("dataUrl", currentServer.getString("data"));
+			params.put("jolokia", currentServer.getJolokiaUrl());
+			params.put("dataUrl", currentServer.getDataUrl());
 			params.put("batchinstanceHideDelay", batchinstanceHideDelay);
 			params.put("servers", servers);
 			params.put("currentId", currentId);
@@ -50,26 +52,33 @@ public abstract class AbstractController {
 	protected Map<String, Object> generateParams() {
 		String currentId = null;
 		try {
-			JSONObject data = getServerData();
-			JSONObject servers = data.getJSONObject("servers");
-			JSONArray serverIds = servers.names();
-			currentId = serverIds.getString(0);
+			JSONArray servers = getServerData();
+			currentId = servers.getJSONObject(0).getString("id");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return generateParams(currentId);
 	}
 
-	private JSONObject getServerData() {
-		if (this.serverData == null) {
-			Resource servers = resourceLoader.getResource("classpath:config/servers.json");
+	private JSONArray getServerData() {
+		if (this.serverData == null || this.serverData.length() == 0) {
+
+			List<Server> servers = serverService.getAvailableServers();
+			JSONArray data = new JSONArray();
+
 			try {
-				String jsonData = IOUtils.toString(servers.getInputStream());
-				JSONObject data = new JSONObject(jsonData);
-				this.serverData = data;
-			} catch (Exception e) {
+				for (Server server : servers) {
+					JSONObject serverObj = new JSONObject();
+					serverObj.put("label", server.getLabel());
+					serverObj.put("id", server.getId());
+					data.put(serverObj);
+				}
+			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+
+			this.serverData = data;
+
 		}
 		return this.serverData;
 	}

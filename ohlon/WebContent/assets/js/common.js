@@ -1,9 +1,10 @@
 $(document).ready(function() {
 	// Load the list of servers
-	serverIds = Object.keys(servers);
 	var html = "";
-	for (var i = 0; i < serverIds.length; i++) {
-		html += '<li class="server" id ="' + serverIds[i] + '"><a href="live?id=' + serverIds[i] + '"><span class="glyphicon glyphicon-tasks"></span> ' + servers[serverIds[i]].label + '</a></li>';
+	for (var i = 0; i < servers.length; i++) {
+		var id = servers[i].id;
+		var label = servers[i].label;
+		html += '<li class="server" id ="' + id + '"><a href="live?id=' + id + '"><span class="glyphicon glyphicon-tasks"></span> ' + label + '</a></li>';
 	}
 	$("#top-menu").prepend(html);
 

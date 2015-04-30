@@ -80,7 +80,7 @@ public class Notification extends QuartzJobBean {
 				boolean sendAtFirstStartup = "true".equalsIgnoreCase(props.getProperty("notification.startup.enabled"));
 				Set<BatchInstance> biToPublish = new HashSet<BatchInstance>();
 
-				Set<Server> servers = serverService.getAvailableServers();
+				List<Server> servers = serverService.getAvailableServers();
 				for (Server server : servers) {
 					Set<BatchInstance> bis = server.getActiveBatchInstancesDetails();
 
