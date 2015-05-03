@@ -1,4 +1,4 @@
-package com.bataon.ephesoft.jmx;
+package com.ohlon.ephesoft.jmx;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,11 +21,11 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
-import com.bataon.ephesoft.db.utils.DBUtils;
-import com.bataon.ephesoft.db.utils.ListUtils;
 import com.ephesoft.dcma.da.service.BatchInstanceService;
 import com.ephesoft.dcma.da.service.PluginService;
 import com.ephesoft.dcma.report.scheduler.ReportScheduler;
+import com.ohlon.ephesoft.db.utils.DBUtils;
+import com.ohlon.ephesoft.db.utils.ListUtils;
 
 @Component
 @ManagedResource(objectName = "ephesoft:type=reporting-stats", description = "Reporting Statistics about Ephesoft")

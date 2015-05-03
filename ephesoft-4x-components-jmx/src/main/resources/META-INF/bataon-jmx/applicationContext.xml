@@ -15,8 +15,8 @@
 		</property>
 	</bean>
 
-	<bean class="com.bataon.ephesoft.jmx.BatchInstanceStats" id="jmxBatchInstanceStats" />
-	<bean class="com.bataon.ephesoft.jmx.ReportingStats" id="jmxReportingStats" />
-	<bean class="com.bataon.ephesoft.jmx.SystemFolderExporter" id="jmxSystemFolderExporter" />
+	<bean class="com.ohlon.ephesoft.jmx.BatchInstanceStats" id="jmxBatchInstanceStats" />
+	<bean class="com.ohlon.ephesoft.jmx.ReportingStats" id="jmxReportingStats" />
+	<bean class="com.ohlon.ephesoft.jmx.SystemFolderExporter" id="jmxSystemFolderExporter" />
 
 </beans>

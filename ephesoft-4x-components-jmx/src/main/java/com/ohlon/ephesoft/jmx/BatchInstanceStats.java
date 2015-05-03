@@ -1,4 +1,4 @@
-package com.bataon.ephesoft.jmx;
+package com.ohlon.ephesoft.jmx;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +17,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
-import com.bataon.ephesoft.db.utils.DBUtils;
 import com.ephesoft.dcma.core.common.BatchInstanceStatus;
 import com.ephesoft.dcma.da.domain.BatchClass;
 import com.ephesoft.dcma.da.domain.BatchInstance;
@@ -25,6 +24,7 @@ import com.ephesoft.dcma.da.property.BatchPriority;
 import com.ephesoft.dcma.da.service.BatchClassService;
 import com.ephesoft.dcma.da.service.BatchInstanceService;
 import com.ephesoft.dcma.da.service.PluginService;
+import com.ohlon.ephesoft.db.utils.DBUtils;
 
 @Component
 @ManagedResource(objectName = "ephesoft:type=batchinstance-stats", description = "Batch Instance Statistics about Ephesoft")
@@ -111,11 +111,11 @@ public class BatchInstanceStats {
 
 		return result.toString();
 	}
-
+	
 	@ManagedAttribute
 	public String getActiveBatchInstancesList() {
 		JSONArray result = new JSONArray();
-
+		
 		List<BatchInstanceStatus> statusList = new ArrayList<BatchInstanceStatus>();
 		statusList.add(BatchInstanceStatus.ERROR);
 		statusList.add(BatchInstanceStatus.NEW);
@@ -126,9 +126,9 @@ public class BatchInstanceStats {
 		statusList.add(BatchInstanceStatus.READY_FOR_REVIEW);
 		statusList.add(BatchInstanceStatus.READY_FOR_VALIDATION);
 		statusList.add(BatchInstanceStatus.RUNNING);
-
+		
 		List<BatchInstance> batchInstances = batchInstanceService.getBatchInstanceByStatusList(statusList);
-
+		
 		try {
 			for (BatchInstance batchInstance : batchInstances) {
 				JSONObject bi = new JSONObject();
@@ -139,7 +139,7 @@ public class BatchInstanceStats {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 		return result.toString();
 	}
 
@@ -160,9 +160,10 @@ public class BatchInstanceStats {
 			Connection c = DBUtils.getDBConnection();
 
 			// get the batch instance details
-			String sql = "SELECT START_, END_, DURATION_ FROM JBPM4_HIST_PROCINST WHERE KEY_=? ORDER BY DBID_;";
+			String sql = "SELECT START_TIME_ AS START_, END_TIME_ AS END_, DURATION_ FROM ACT_HI_PROCINST WHERE NAME_ = ? AND BUSINESS_KEY_ = ? ORDER BY START_TIME_;";
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, batchInstance.getIdentifier());
+			statement.setString(2, batchInstance.getIdentifier());
 			ResultSet rs = statement.executeQuery();
 			if (rs.next()) {
 				// save batch details information
@@ -176,14 +177,14 @@ public class BatchInstanceStats {
 			statement.close();
 
 			// get the module details
-			sql = "SELECT ACTIVITY_NAME_, START_, END_, DURATION_ FROM JBPM4_HIST_ACTINST WHERE HPROCI_ IN (SELECT DBID_ FROM JBPM4_HIST_PROCINST WHERE KEY_= ? ) AND CLASS_ = 'act' AND TYPE_ = 'sub-process' ORDER BY DBID_;";
+			sql = "SELECT SUBSTRING_INDEX(BUSINESS_KEY_, '.', -1) AS WORKFLOW_NAME, DURATION_, START_TIME_ AS START_, END_TIME_ AS END_ FROM ACT_HI_PROCINST proc WHERE proc.NAME_ = ?  AND SUBSTRING_INDEX(BUSINESS_KEY_, '-', -1)='m' ORDER BY ID_";
 			statement = c.prepareStatement(sql);
 			statement.setString(1, batchInstance.getIdentifier());
 			rs = statement.executeQuery();
 			JSONArray modules = new JSONArray();
 			while (rs.next()) {
 				JSONObject module = new JSONObject();
-				module.put("wf_module_label", rs.getString("ACTIVITY_NAME_").replaceAll("_", " "));
+				module.put("wf_module_label", rs.getString("WORKFLOW_NAME").replaceAll("_", " "));
 				module.put("wf_module_start", rs.getTimestamp("START_"));
 				module.put("wf_module_end", rs.getTimestamp("END_"));
 				module.put("wf_module_duration", rs.getInt("DURATION_"));

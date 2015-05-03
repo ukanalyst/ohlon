@@ -11,6 +11,6 @@
          					"
 	default-autowire="byName">
 
-	<import resource="classpath:/META-INF/bataon-jmx/applicationContext.xml" />
+	<import resource="classpath:/META-INF/ohlon-jmx/applicationContext.xml" />
 
 </beans>

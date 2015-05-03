@@ -1,4 +1,4 @@
-package com.bataon.ephesoft.db.utils;
+package com.ohlon.ephesoft.db.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,19 +58,23 @@ public class DBUtils {
 			// configuration
 			Properties p = new Properties();
 			String home = System.getenv("DCMA_HOME");
-			File propFile = new File(home, "WEB-INF/classes/META-INF/dcma-performance-reporting/dcma-report-db.properties");
+			File propFile = new File(home, "WEB-INF/classes/META-INF/dcma-reporting/etl-variables.properties");
 			InputStream is = new FileInputStream(propFile);
 			p.load(is);
 			
 			// get the connection information from the properties file
-			String username = (String) p.get("hibernate.connection.username");
-			String password = (String) p.get("hibernate.connection.password");
-			String driver = (String) p.get("hibernate.connection.driver_class");
-			String url = (String) p.get("hibernate.connection.url");
+			String hostname = (String) p.get("reporting.hostname");
+			String port = (String) p.get("reporting.port");
+			String dbname = (String) p.get("reporting.dbname");
+			String username = (String) p.get("reporting.username");
+			String password = (String) p.get("reporting.password");
+			String driver = (String) p.get("reporting.driverClassName");
+			String url = (String) p.get("reporting.url");
 			
 			// fix the URL by substituting in the parameters
-			url = url.replace("${dataSource.username}", username);
-			url = url.replace("${dataSource.password}", password);
+			url = url.replace("$dcmareport{reporting.hostname}", hostname);
+			url = url.replace("$dcmareport{reporting.port}", port);
+			url = url.replace("$dcmareport{reporting.dbname}", dbname);
 			
 			// get a connection to the database
 			Class.forName(driver).newInstance();

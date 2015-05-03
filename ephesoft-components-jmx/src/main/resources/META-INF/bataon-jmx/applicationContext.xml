@@ -5,7 +5,7 @@
                            http://www.springframework.org/schema/context 
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<context:component-scan base-package="com.bataon.ephesoft.jmx" />
+	<context:component-scan base-package="com.ohlon.ephesoft.jmx" />
 	<context:mbean-export />
 
 </beans>
