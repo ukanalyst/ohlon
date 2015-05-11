@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context 
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean class="org.springframework.jmx.export.MBeanExporter" id="monitoringJmxExporter" lazy-init="false">
+		<property name="beans">
+			<map>
+				<entry key="ephesoft:type=batchinstance-stats" value-ref="jmxBatchInstanceStats" />
+				<entry key="ephesoft:type=reporting-stats" value-ref="jmxReportingStats" />
+				<entry key="ephesoft:type=system-folder" value-ref="jmxSystemFolderExporter" />
+				<entry key="ephesoft:type=application-details" value-ref="jmxApplicationDetails" />
+			</map>
+		</property>
+	</bean>
+
+	<bean class="com.ohlon.ephesoft.jmx.BatchInstanceStats" id="jmxBatchInstanceStats" />
+	<bean class="com.ohlon.ephesoft.jmx.ReportingStats" id="jmxReportingStats" />
+	<bean class="com.ohlon.ephesoft.jmx.SystemFolderExporter" id="jmxSystemFolderExporter" />
+	<bean class="com.ohlon.ephesoft.jmx.ApplicationDetails" id="jmxApplicationDetails" />
+
+</beans>

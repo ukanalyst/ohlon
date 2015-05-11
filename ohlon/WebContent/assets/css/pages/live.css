@@ -1,0 +1,14 @@
+#server-status {
+	background-repeat: no-repeat;
+	background-position: 3px 0px;
+	height: 50px;
+	padding-top: 5px;
+}
+
+#server-status.serverOK {
+	background-image: url(../../img/pages/live/server-ok.png);
+}
+
+#server-status.serverKO {
+	background-image: url(../../img/pages/live/server-ko.png);
+}

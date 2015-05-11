@@ -47,7 +47,7 @@
                                              <br />${url}</p>
                                              
                                              <p>Sincerely,<br />
-                                             oHlon</p>
+                                             ohlon</p>
                                           </div>
                                        </td>
                                     </tr>
@@ -61,7 +61,7 @@
                            </tr>
                            <tr>
                               <td style="padding: 10px 30px;">
-                                 <img src="http://www.ohlon.com/logo-email.png" alt="" width="117" height="48" border="0" />
+                                 <img src="http://ohlon.com/img/logo-light-200.png" alt="" width="117" height="53" border="0" />
                               </td>
                            </tr>
                         </table>

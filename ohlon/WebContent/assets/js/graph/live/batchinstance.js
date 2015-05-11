@@ -9,14 +9,15 @@ var searchNewBatchInstances = function() {
 		dataType : 'json',
 		success : function(response) {
 			var data = eval(response.value);
-			for (var i = 0; i < data.length; i++) {
-				var identifier = data[i];
+			if (data)
+				for (var i = 0; i < data.length; i++) {
+					var identifier = data[i];
 
-				var biElement = $("#" + identifier);
-				if (biElement.length == 0) {
-					createBatchInstance(identifier);
+					var biElement = $("#" + identifier);
+					if (biElement.length == 0) {
+						createBatchInstance(identifier);
+					}
 				}
-			}
 		}
 	});
 };

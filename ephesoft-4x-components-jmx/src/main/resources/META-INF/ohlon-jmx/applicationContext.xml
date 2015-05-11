@@ -11,6 +11,7 @@
 				<entry key="ephesoft:type=batchinstance-stats" value-ref="jmxBatchInstanceStats" />
 				<entry key="ephesoft:type=reporting-stats" value-ref="jmxReportingStats" />
 				<entry key="ephesoft:type=system-folder" value-ref="jmxSystemFolderExporter" />
+				<entry key="ephesoft:type=application-details" value-ref="jmxApplicationDetails" />
 			</map>
 		</property>
 	</bean>
@@ -18,5 +19,6 @@
 	<bean class="com.ohlon.ephesoft.jmx.BatchInstanceStats" id="jmxBatchInstanceStats" />
 	<bean class="com.ohlon.ephesoft.jmx.ReportingStats" id="jmxReportingStats" />
 	<bean class="com.ohlon.ephesoft.jmx.SystemFolderExporter" id="jmxSystemFolderExporter" />
+	<bean class="com.ohlon.ephesoft.jmx.ApplicationDetails" id="jmxApplicationDetails" />
 
 </beans>

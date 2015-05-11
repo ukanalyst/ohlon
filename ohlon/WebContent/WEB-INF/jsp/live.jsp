@@ -2,9 +2,16 @@
 <html>
 <head>
 <title>Ohlon</title>
-<link rel="icon" type="image/ico" href="./assets/img/favicon.ico"/>
+<link rel="icon" type="image/ico" href="./assets/img/favicon.ico" />
 <link rel="stylesheet" href="./assets/lib/bootstrap/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="./assets/css/keen-dashboards.css">
+<link rel="stylesheet" href="./assets/css/pages/live.css">
+
+<script type="text/javascript">
+	var JOLOKIA_URL = "${jolokia}";
+</script>
+<script src="assets/js/pages/live.js"></script>
+
 </head>
 <body class="application" style="overflow-x: hidden">
 
@@ -14,6 +21,19 @@
 
 		<div class="row">
 			<div class="col-sm-3">
+				<div class="chart-wrapper">
+					<div class="chart-title">Server status</div>
+					<div class="chart-stage">
+						<div id="server-status">
+							<div style="display: table-row">
+								<span style="padding-left: 75px;">Ephesoft version: </span><span id="ephesoft-version"></span>
+							</div>
+							<div style="display: table-row">
+								<span style="padding-left: 75px;">OS: </span><span id="os-name"></span>
+							</div>
+						</div>
+					</div>
+				</div>
 				<div class="chart-wrapper">
 					<div class="chart-title">Batch Instances</div>
 					<div class="chart-stage">

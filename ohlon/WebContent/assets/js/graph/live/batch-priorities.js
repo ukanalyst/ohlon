@@ -39,12 +39,13 @@ window.onload = function() {
 
 				dataPoints1.length = 0;
 
-				for (var i = 0; i < d.length; i++) {
-					dataPoints1.push({
-						label : d[i].priority,
-						y : d[i].size
-					});
-				}
+				if (d)
+					for (var i = 0; i < d.length; i++) {
+						dataPoints1.push({
+							label : d[i].priority,
+							y : d[i].size
+						});
+					}
 
 				chart.render();
 			}
