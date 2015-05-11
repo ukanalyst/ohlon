@@ -57,6 +57,7 @@ public class Notification extends QuartzJobBean {
 	private Log log = LogFactory.getLog(Notification.class);
 	private static boolean initialCheckDone = false;
 	private static Map<String, String> currentInstances = new HashMap<String, String>();
+	private static Set<String> currentFailedServerIds = new HashSet<String>();
 	private static String PUSHBULLET_URL = "https://api.pushbullet.com/v2/pushes";
 
 	private ServerService serverService;
@@ -82,31 +83,43 @@ public class Notification extends QuartzJobBean {
 
 				List<Server> servers = serverService.getAvailableServers();
 				for (Server server : servers) {
-					Set<BatchInstance> bis = server.getActiveBatchInstancesDetails();
 
-					for (BatchInstance batchInstance : bis) {
+					// Check if the server is running
+					if (!server.isRunning()) {
+						if (!currentFailedServerIds.contains(server.getId())) {
+							publishServerFailure(server);
+							currentFailedServerIds.add(server.getId());
+						}
+					} else {
+						currentFailedServerIds.remove(server.getId());
 
-						log.debug("Analyze: " + batchInstance);
+						Set<BatchInstance> bis = server.getActiveBatchInstancesDetails();
 
-						// If the batch instance is already listed
-						if (currentInstances.containsKey(batchInstance.getIdentifier())) {
+						for (BatchInstance batchInstance : bis) {
 
-							// If the status is updated
-							if (!currentInstances.get(batchInstance.getIdentifier()).equalsIgnoreCase(batchInstance.getStatus())) {
-								// Update the status
+							log.debug("Analyze: " + batchInstance);
+
+							// If the batch instance is already listed
+							if (currentInstances.containsKey(batchInstance.getIdentifier())) {
+
+								// If the status is updated
+								if (!currentInstances.get(batchInstance.getIdentifier()).equalsIgnoreCase(batchInstance.getStatus())) {
+									// Update the status
+									currentInstances.put(batchInstance.getIdentifier(), batchInstance.getStatus());
+									// Check if the batch instance has to be
+									// published
+									if (isValidStatus(batchInstance))
+										biToPublish.add(batchInstance);
+								}
+
+							} else {
+								// We reference a new batch instance
 								currentInstances.put(batchInstance.getIdentifier(), batchInstance.getStatus());
 								// Check if the batch instance has to be
 								// published
 								if (isValidStatus(batchInstance))
 									biToPublish.add(batchInstance);
 							}
-
-						} else {
-							// We reference a new batch instance
-							currentInstances.put(batchInstance.getIdentifier(), batchInstance.getStatus());
-							// Check if the batch instance has to be published
-							if (isValidStatus(batchInstance))
-								biToPublish.add(batchInstance);
 						}
 					}
 
@@ -294,6 +307,111 @@ public class Notification extends QuartzJobBean {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void publishEmailNotification(Server server) {
+
+		try {
+			log.debug("Send email notification: " + server);
+
+			boolean emailServiceEnabled = "true".equalsIgnoreCase(props.getProperty("notification.email.enabled"));
+			log.debug("Server enabled: " + emailServiceEnabled);
+
+			if (emailServiceEnabled) {
+
+				Map<String, Object> templateVars = new HashMap<String, Object>();
+				templateVars.put("server", server.getLabel());
+				templateVars.put("date", new Date());
+
+				MimeMessage message = sender.createMimeMessage();
+				MimeMessageHelper helper = new MimeMessageHelper(message, false, "utf-8");
+				StringBuffer content = new StringBuffer();
+				try {
+					Configuration freemarkerConfiguration = new Configuration();
+					freemarkerConfiguration.setClassForTemplateLoading(this.getClass(), "/");
+					Template freemarkerTemplate = freemarkerConfiguration.getTemplate(props.getProperty("notification.email.server.template"));
+					content.append(FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerTemplate, templateVars));
+				} catch (Exception e) {
+					log.error(e);
+				}
+
+				helper.setFrom(props.getProperty("notification.email.from"));
+				helper.setTo(props.getProperty("notification.email.server.recipient").split(";"));
+
+				String title = props.getProperty("notification.email.server.title");
+				title = title.replaceAll("\\$server", server.getLabel());
+				message.setSubject(title);
+				message.setContent(content.toString(), "text/html");
+
+				sender.send(message);
+			}
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+
+	}
+
+	private void publishBulletNotification(Server server) {
+		try {
+			log.debug("Send PushBullet notification: " + server);
+
+			boolean pushbuletServiceEnabled = "true".equalsIgnoreCase(props.getProperty("notification.pushbullet.enabled"));
+			log.debug("Server enabled: " + pushbuletServiceEnabled);
+
+			if (pushbuletServiceEnabled) {
+
+				List<NameValuePair> data = new ArrayList<>(1);
+				data.add(new BasicNameValuePair("type", "note"));
+
+				String title = props.getProperty("notification.pushbullet.server.title");
+				title = title.replaceAll("\\$server", server.getLabel());
+				data.add(new BasicNameValuePair("title", title));
+
+				String body = props.getProperty("notification.pushbullet.server.body");
+				body = body.replaceAll("\\$server", server.getLabel());
+				data.add(new BasicNameValuePair("body", body));
+
+				// Check if their a list of devices
+				String devices = props.getProperty("notification.pushbullet.server.devices");
+				String emails = props.getProperty("notification.pushbullet.server.emails");
+				if (devices != null && devices.length() > 0) {
+					String[] deviceList = devices.split(";");
+					for (String device : deviceList) {
+						data.add(new BasicNameValuePair("device_iden", device));
+						sendPushBulletNotification(data);
+					}
+				} else if (emails != null && emails.length() > 0) {
+					String[] emailList = emails.split(";");
+					for (String email : emailList) {
+						data.add(new BasicNameValuePair("email", email));
+						sendPushBulletNotification(data);
+					}
+				} else {
+					sendPushBulletNotification(data);
+				}
+			}
+		} catch (Exception e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	private void publishServerFailure(Server server) {
+		// Check which system, we need to use
+		String systems = props.getProperty("notification.server");
+		log.debug("  To: " + systems);
+		if (systems != null && systems.length() > 0) {
+			String[] listOfSystem = systems.split("\\|");
+			for (String system : listOfSystem) {
+				if ("email".equalsIgnoreCase(system)) {
+					publishEmailNotification(server);
+				} else if ("pushbullet".equalsIgnoreCase(system)) {
+					publishBulletNotification(server);
+				} else
+					log.warn("  The system " + system + " is not a valid notification system.");
+			}
+		}
 	}
 
 	private boolean isValidStatus(BatchInstance batchInstance) {

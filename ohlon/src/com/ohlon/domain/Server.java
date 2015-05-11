@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
@@ -40,6 +41,23 @@ public class Server {
 		} catch (JSONException e) {
 			log.error(e);
 		}
+	}
+
+	public boolean isRunning() {
+		boolean result = true;
+
+		RequestConfig config = RequestConfig.custom().setSocketTimeout(1000).setConnectTimeout(1000).build();
+
+		try {
+			String url = this.jolokiaUrl + "/exec/ephesoft:type=application-details/getApplicationDetails()/";
+			HttpClient client = HttpClientBuilder.create().disableAutomaticRetries().setDefaultRequestConfig(config).build();
+			HttpGet request = new HttpGet(url);
+			client.execute(request);
+		} catch (Exception e) {
+			result = false;
+		}
+
+		return result;
 	}
 
 	public Set<BatchInstance> getActiveBatchInstancesDetails() {

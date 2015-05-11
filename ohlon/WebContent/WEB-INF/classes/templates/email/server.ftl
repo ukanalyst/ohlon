@@ -31,7 +31,7 @@
                                           <table cellpadding="0" cellspacing="0" border="0">
                                              <tr>
                                                 <td>
-                                                   <div style="font-size: 22px; padding-bottom: 4px;">${identifier} is ready for review!</div>
+                                                   <div style="font-size: 22px; padding-bottom: 4px;">Ephesoft Server Issue!</div>
                                                    <div style="font-size: 13px;">
                                                       ${date?datetime?string.full}
                                                    </div>
@@ -41,11 +41,8 @@
                                           <div style="font-size: 14px; margin: 12px 0px 24px 0px; padding-top: 10px; border-top: 1px solid #aaaaaa;">
                                              <p>Hello,</p>
 
-                                             <p>The batch instance ${identifier} is ready to be reviewed.</p>
+                                             <p>The server ${server} is not reachable..</p>
 
-                                             <p>Click this link to open the batch instance:<br />
-                                             <br />${url}</p>
-                                             
                                              <p>Sincerely,<br />
                                              ohlon</p>
                                           </div>
