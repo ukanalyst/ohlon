@@ -25,29 +25,29 @@ notification.status.error=email|pushbullet
 notification.server=email|pushbullet
 
 # Mail system properties
-notification.email.enabled=false
-notification.email.host=
-notification.email.port=
-notification.email.protocol=
+notification.email.enabled=true
+notification.email.host=internalmail.armedia.com
+notification.email.port=25
+notification.email.protocol=smtp
 notification.email.username=
 notification.email.password=
 notification.email.from=noreply@ohlon.com
-notification.email.readyforreview.recipient=
+notification.email.readyforreview.recipient=benjamin.chevallereau@gmail.com
 notification.email.readyforreview.title=$identifier is ready for review!
 notification.email.readyforreview.template=/templates/email/readyforreview.ftl
-notification.email.readyforvalidation.recipient=
+notification.email.readyforvalidation.recipient=benjamin.chevallereau@gmail.com
 notification.email.readyforvalidation.title=$identifier is ready for validation!
 notification.email.readyforvalidation.template=/templates/email/readyforvalidation.ftl
-notification.email.error.recipient=
+notification.email.error.recipient=benjamin.chevallereau@gmail.com
 notification.email.error.title=$identifier is in ERROR status!
 notification.email.error.template=/templates/email/error.ftl
-notification.email.server.recipient=
+notification.email.server.recipient=benjamin.chevallereau@gmail.com
 notification.email.server.title=Ephesoft server issue!
 notification.email.server.template=/templates/email/server.ftl
 
 # Push bullet properties
-notification.pushbullet.enabled=false
-notification.pushbullet.token=
+notification.pushbullet.enabled=true
+notification.pushbullet.token=v1ZTZceEfi0Zc692ghdSavScpwIJwNs0beujDmHxkpVKe
 notification.pushbullet.readyforreview.devices=
 notification.pushbullet.readyforreview.emails=
 notification.pushbullet.readyforreview.title=$identifier is ready for review!
