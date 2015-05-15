@@ -3,6 +3,7 @@
 <head>
 <script type="text/javascript">
 	var JOLOKIA_URL = "${jolokia}";
+	var JOLOKIA_AUTH = "${auth}";
 </script>
 <script type="text/javascript" src="../assets/js/graph/live/cpu-usage.js"></script>
 <script type="text/javascript" src="../assets/lib/canvasjs/canvasjs.min.js"></script>

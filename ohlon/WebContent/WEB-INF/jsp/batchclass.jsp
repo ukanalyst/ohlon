@@ -4,6 +4,7 @@
 <title>Ohlon</title>
 <script type="text/javascript">
 	var JOLOKIA_URL = "${jolokia}";
+	var JOLOKIA_AUTH = "${auth}";
 </script>
 <link rel="icon" type="image/ico" href="./assets/img/favicon.ico"/>
 <link rel="stylesheet" href="assets/lib/bootstrap/dist/css/bootstrap.min.css">

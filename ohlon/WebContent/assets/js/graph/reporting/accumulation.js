@@ -1,5 +1,11 @@
 window.onload = function() {
 
+	var headers = {};
+	if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
+		headers = {
+			'Authorization' : "Basic " + JOLOKIA_AUTH
+		};
+	
 	if (from.length == 0)
 		from = "na"
 	if (to.length == 0)
@@ -9,6 +15,7 @@ window.onload = function() {
 		$.ajax({
 			url : JOLOKIA_URL + '/exec/ephesoft:type=reporting-stats/getArtifactAccumulationDetails(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)/' + bc + '/' + type + '/' + name + '/' + from + '/' + to,
 			dataType : "json",
+			headers : headers,
 			success : function(data) {
 				var d = eval(data.value);
 

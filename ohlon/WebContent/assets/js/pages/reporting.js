@@ -1,5 +1,11 @@
 window.onload = function() {
 	$('.input-group.date').datetimepicker();
+	
+	var headers = {};
+	if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
+		headers = {
+			'Authorization' : "Basic " + JOLOKIA_AUTH
+		};
 
 	$("#refreshReports").click(function(event) {
 		var bc = $("#batchclass option:selected").attr("id");
@@ -22,6 +28,7 @@ window.onload = function() {
 		$.ajax({
 			url : JOLOKIA_URL + '/exec/ephesoft:type=reporting-stats/getBatchClassExecutionDetails(java.lang.String,java.lang.String,java.lang.String)/' + bc + '/' + from + '/' + to,
 			dataType : "json",
+			headers : headers,
 			success : function(data) {
 				var d = eval(data.value);
 
@@ -107,6 +114,7 @@ window.onload = function() {
 	$.ajax({
 		url : JOLOKIA_URL + "/read/ephesoft:type=batchinstance-stats/BatchClass",
 		dataType : "json",
+		headers : headers,
 		success : function(data) {
 			var d = eval(data.value);
 			for (var i = 0; i < d.length; i++) {
@@ -119,6 +127,7 @@ window.onload = function() {
 	$.ajax({
 		url : JOLOKIA_URL + '/exec/ephesoft:type=reporting-stats/getLatestReportSyncDate',
 		dataType : "json",
+		headers : headers,
 		success : function(data) {
 			var date = data.value;
 
@@ -136,6 +145,7 @@ window.onload = function() {
 		$.ajax({
 			url : JOLOKIA_URL + '/exec/ephesoft:type=reporting-stats/refreshReportDatabase',
 			dataType : "json",
+			headers : headers,
 			success : function(data) {
 				var date = data.value;
 

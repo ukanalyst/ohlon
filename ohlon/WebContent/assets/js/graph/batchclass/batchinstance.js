@@ -1,4 +1,10 @@
 window.onload = function() {
+	
+	var headers = {};
+	if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
+		headers = {
+			'Authorization' : "Basic " + JOLOKIA_AUTH
+		};
 
 	if (from.length == 0)
 		from = "na"
@@ -8,6 +14,7 @@ window.onload = function() {
 		$.ajax({
 			url : JOLOKIA_URL + '/exec/ephesoft:type=batchinstance-stats/getBatchInstanceByBatchClass(java.lang.String,java.lang.String,java.lang.String)/' + bc + '/' + from + '/' + to,
 			dataType : "json",
+			headers : headers,
 			success : function(data) {
 				var d = eval(data.value);
 				var html = "";

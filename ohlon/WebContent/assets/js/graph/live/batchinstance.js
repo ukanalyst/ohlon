@@ -1,12 +1,19 @@
 var updateInterval = 1000;
 var DIFF = 1 * (60 * 60 * 1000);
 
+var headers = {};
+if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
+	headers = {
+		'Authorization' : "Basic " + JOLOKIA_AUTH
+	};
+
 var refreshFunctions = new Object();
 
 var searchNewBatchInstances = function() {
 	$.ajax({
 		url : JOLOKIA_URL + '/read/ephesoft:type=batchinstance-stats/ActiveBatchInstancesDetails',
 		dataType : 'json',
+		headers : headers,
 		success : function(response) {
 			var data = eval(response.value);
 			if (data)
@@ -26,6 +33,7 @@ function createBatchInstance(identifier) {
 	$.ajax({
 		url : JOLOKIA_URL + '/exec/ephesoft:type=batchinstance-stats/getActiveBatchInstancesDetails(java.lang.String)/' + identifier,
 		dataType : 'json',
+		headers : headers,
 		success : function(response) {
 			var bi = JSON.parse(response.value);
 			var html = generateHtml(bi);
@@ -42,6 +50,7 @@ function updateBatchInstance(identifier) {
 	$.ajax({
 		url : JOLOKIA_URL + '/exec/ephesoft:type=batchinstance-stats/getActiveBatchInstancesDetails(java.lang.String)/' + identifier,
 		dataType : 'json',
+		headers : headers,
 		success : function(response) {
 			var bi = JSON.parse(response.value);
 			var biElement = $("#" + identifier);

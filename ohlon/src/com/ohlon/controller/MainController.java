@@ -2,6 +2,7 @@ package com.ohlon.controller;
 
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,8 @@ public class MainController extends AbstractController {
 	public ModelAndView login(@RequestParam(value = "error", required = false) String error, @RequestParam(value = "logout", required = false) String logout) {
 
 		ModelAndView model = new ModelAndView();
+		model.addObject("displayLoginForm", true);
+		
 		if (error != null) {
 			model.addObject("error", "Invalid username and password!");
 		}
@@ -29,6 +32,13 @@ public class MainController extends AbstractController {
 		if (logout != null) {
 			model.addObject("msg", "You've been logged out successfully.");
 		}
+
+		JSONArray listOfServers = getServerData();
+		if (listOfServers == null || listOfServers.length() == 0) {
+			model.addObject("error", "Your server configuration file doesn't exist or is empty.");
+			model.addObject("displayLoginForm", false);
+		}
+
 		model.setViewName("login");
 
 		return model;

@@ -3,7 +3,7 @@
 <html>
 <head>
 <title>Ohlon</title>
-<link rel="icon" type="image/ico" href="./assets/img/favicon.ico"/>
+<link rel="icon" type="image/ico" href="./assets/img/favicon.ico" />
 <link rel="stylesheet" href="./assets/lib/bootstrap/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="./assets/css/keen-dashboards.css">
 <link rel="stylesheet" href="./assets/css/login.css">
@@ -41,31 +41,33 @@
 										</div>
 									</c:if>
 								</div>
-								<div class="row">
-									<div class="center-block">
-										<img class="profile-img" src="./assets/img/app-login.png" alt="">
+								<c:if test="${displayLoginForm == true}">
+									<div class="row">
+										<div class="center-block">
+											<img class="profile-img" src="./assets/img/app-login.png" alt="">
+										</div>
 									</div>
-								</div>
-								<div class="row">
-									<div class="col-sm-12 col-md-10  col-md-offset-1 ">
-										<div class="form-group">
-											<div class="input-group">
-												<span class="input-group-addon"> <i class="glyphicon glyphicon-user"></i>
-												</span> <input class="form-control" placeholder="Username" name="username" type="text" autofocus autocomplete="off">
+									<div class="row">
+										<div class="col-sm-12 col-md-10  col-md-offset-1 ">
+											<div class="form-group">
+												<div class="input-group">
+													<span class="input-group-addon"> <i class="glyphicon glyphicon-user"></i>
+													</span> <input class="form-control" placeholder="Username" name="username" type="text" autofocus autocomplete="off">
+												</div>
 											</div>
-										</div>
-										<div class="form-group">
-											<div class="input-group">
-												<span class="input-group-addon"> <i class="glyphicon glyphicon-lock"></i>
-												</span> <input class="form-control" placeholder="Password" name="password" type="password" value="" autocomplete="off">
+											<div class="form-group">
+												<div class="input-group">
+													<span class="input-group-addon"> <i class="glyphicon glyphicon-lock"></i>
+													</span> <input class="form-control" placeholder="Password" name="password" type="password" value="" autocomplete="off">
+												</div>
 											</div>
-										</div>
-										<div class="form-group">
-											<input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign in">
-										</div>
+											<div class="form-group">
+												<input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign in">
+											</div>
 
+										</div>
 									</div>
-								</div>
+								</c:if>
 							</fieldset>
 							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 						</form>

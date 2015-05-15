@@ -11,6 +11,7 @@
 
 <script type="text/javascript">
 	var JOLOKIA_URL = "${jolokia}";
+	var JOLOKIA_AUTH = "${auth}";
 	var DATA_URL = "${dataUrl}";
 	var identifier = "${identifier}";
 </script>

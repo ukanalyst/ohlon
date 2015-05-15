@@ -1,5 +1,11 @@
 window.onload = function() {
 
+	var headers = {};
+	if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
+		headers = {
+			'Authorization' : "Basic " + JOLOKIA_AUTH
+		};
+	
 	var updateInterval = 1000;
 	var created = false;
 
@@ -8,6 +14,7 @@ window.onload = function() {
 		$.ajax({
 			url : JOLOKIA_URL + "/read/ephesoft:type=batchinstance-stats/ReadyForValidationBatchInstances",
 			dataType : "json",
+			headers : headers,
 			success : function(data) {
 				if (created)
 					$(".dial").val(data.value).trigger('change');

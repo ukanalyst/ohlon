@@ -1,4 +1,11 @@
+var headers = {};
+if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
+	headers = {
+		'Authorization' : "Basic " + JOLOKIA_AUTH
+	};
+
 window.onload = function() {
+
 	$("#refreshFiles").click(function(event) {
 		var bi = $("#batchidentifier").val();
 		refreshFiles(bi);
@@ -27,6 +34,7 @@ window.onload = function() {
 		$.ajax({
 			url : JOLOKIA_URL + '/exec/ephesoft:type=reporting-stats/getBatchInstanceExecutionDetails(java.lang.String)/' + bi,
 			dataType : "json",
+			headers : headers,
 			success : function(data) {
 				var d = eval(data.value);
 
@@ -166,6 +174,7 @@ function refreshFiles(bi) {
 	$.ajax({
 		url : JOLOKIA_URL + '/exec/ephesoft:type=system-folder/getBatchInstanceFiles(java.lang.String)/' + bi,
 		dataType : "json",
+		headers : headers,
 		success : function(d) {
 			var data = eval('(' + d.value + ')');
 			$("#listoffiles").html("");
@@ -232,6 +241,7 @@ function previewFile(e) {
 		$.ajax({
 			url : JOLOKIA_URL + '/exec/ephesoft:type=system-folder/getBatchInstanceFile(java.lang.String,java.lang.String)/' + identifier + '/' + fileName,
 			dataType : "json",
+			headers : headers,
 			success : function(d) {
 				var result = eval('(' + d.value + ')')
 				if (result.success) {
@@ -261,6 +271,7 @@ function compareXMLFile(e) {
 	$.ajax({
 		url : JOLOKIA_URL + '/exec/ephesoft:type=system-folder/getBatchInstanceFile(java.lang.String,java.lang.String)/' + identifier + '/' + src_filename,
 		dataType : "json",
+		headers : headers,
 		success : function(d) {
 			var result = eval('(' + d.value + ')')
 			if (result.success) {
@@ -270,6 +281,7 @@ function compareXMLFile(e) {
 				$.ajax({
 					url : JOLOKIA_URL + '/exec/ephesoft:type=system-folder/getBatchInstanceFile(java.lang.String,java.lang.String)/' + identifier + '/' + dest_filename,
 					dataType : "json",
+					headers : headers,
 					success : function(d) {
 						var result = eval('(' + d.value + ')')
 						if (result.success) {

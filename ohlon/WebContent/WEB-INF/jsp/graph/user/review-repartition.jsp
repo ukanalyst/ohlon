@@ -3,6 +3,7 @@
 <head>
 <script type="text/javascript">
 	var JOLOKIA_URL = "${jolokia}";
+	var JOLOKIA_AUTH = "${auth}";
 	var bc = "${bc}";
 	var module = "READY_FOR_REVIEW";
 	var name = "${name}";

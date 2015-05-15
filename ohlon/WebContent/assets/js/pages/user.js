@@ -1,4 +1,11 @@
 window.onload = function() {
+
+	var headers = {};
+	if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
+		headers = {
+			'Authorization' : "Basic " + JOLOKIA_AUTH
+		};
+
 	$('.input-group.date').datetimepicker();
 
 	$("#refreshReports").click(function(event) {
@@ -25,6 +32,7 @@ window.onload = function() {
 		$.ajax({
 			url : JOLOKIA_URL + '/exec/ephesoft:type=reporting-stats/getManualStepsExecutionDetails(java.lang.String,java.lang.String,java.lang.String,java.lang.String)/' + bc + '/' + from + '/' + to + '/' + user,
 			dataType : "json",
+			headers : headers,
 			success : function(data) {
 				var d = eval(data.value);
 
@@ -52,7 +60,7 @@ window.onload = function() {
 					$(".metric-main.document." + containerId).html(d[i].NBOFDOCUMENTS)
 					$(".metric-main.page." + containerId).html(d[i].NBOFPAGES)
 				}
-				
+
 				// Update graphs
 				var param = "";
 				if (bc && bc.length > 0)
@@ -82,6 +90,7 @@ window.onload = function() {
 	$.ajax({
 		url : JOLOKIA_URL + "/read/ephesoft:type=batchinstance-stats/BatchClass",
 		dataType : "json",
+		headers : headers,
 		success : function(data) {
 			var d = eval(data.value);
 			for (var i = 0; i < d.length; i++) {
@@ -94,6 +103,7 @@ window.onload = function() {
 	$.ajax({
 		url : JOLOKIA_URL + '/exec/ephesoft:type=reporting-stats/getLatestReportSyncDate',
 		dataType : "json",
+		headers : headers,
 		success : function(data) {
 			var date = data.value;
 
@@ -111,6 +121,7 @@ window.onload = function() {
 		$.ajax({
 			url : JOLOKIA_URL + '/exec/ephesoft:type=reporting-stats/refreshReportDatabase',
 			dataType : "json",
+			headers : headers,
 			success : function(data) {
 				var date = data.value;
 

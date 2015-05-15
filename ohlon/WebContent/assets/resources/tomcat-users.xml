@@ -1,5 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<tomcat-users>
-	<role rolename="ohlon" />
-	<user username="ohlon" password="q%C7sbFfx2B%%HbAXhFw*aSiB2CVw" roles="ohlon" />
-</tomcat-users>

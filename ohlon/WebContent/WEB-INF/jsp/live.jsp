@@ -9,6 +9,7 @@
 
 <script type="text/javascript">
 	var JOLOKIA_URL = "${jolokia}";
+	var JOLOKIA_AUTH = "${auth}";
 </script>
 <script src="assets/js/pages/live.js"></script>
 

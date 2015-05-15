@@ -9,9 +9,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +28,8 @@ public class Server {
 	private String jolokiaUrl;
 	private String dataUrl;
 	private String dcmaUrl;
+	private String username;
+	private String password;
 
 	private Log log = LogFactory.getLog(Server.class);
 
@@ -38,6 +44,10 @@ public class Server {
 				this.dataUrl = data.getString("data");
 			if (data.has("dcma"))
 				this.dcmaUrl = data.getString("dcma");
+			if (data.has("username"))
+				this.username = data.getString("username");
+			if (data.has("password"))
+				this.password = data.getString("password");
 		} catch (JSONException e) {
 			log.error(e);
 		}
@@ -50,7 +60,7 @@ public class Server {
 
 		try {
 			String url = this.jolokiaUrl + "/exec/ephesoft:type=application-details/getApplicationDetails()/";
-			HttpClient client = HttpClientBuilder.create().disableAutomaticRetries().setDefaultRequestConfig(config).build();
+			HttpClient client = HttpClientBuilder.create().disableAutomaticRetries().setDefaultRequestConfig(config).setDefaultCredentialsProvider(getCredentialsProvider()).build();
 			HttpGet request = new HttpGet(url);
 			client.execute(request);
 		} catch (Exception e) {
@@ -65,27 +75,37 @@ public class Server {
 
 		try {
 			String url = this.jolokiaUrl + "/exec/ephesoft:type=batchinstance-stats/getActiveBatchInstancesList()/";
-			HttpClient client = HttpClientBuilder.create().build();
+			HttpClient client = HttpClientBuilder.create().setDefaultCredentialsProvider(getCredentialsProvider()).build();
 			HttpGet request = new HttpGet(url);
 			HttpResponse response = client.execute(request);
-			BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-			String dataStr = IOUtils.toString(rd);
-			JSONObject data = new JSONObject(dataStr);
-			if (data.has("value")) {
-				JSONArray batchInstances = new JSONArray(data.getString("value"));
+			if (response.getStatusLine().getStatusCode() == 200) {
+				BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+				String dataStr = IOUtils.toString(rd);
+				JSONObject data = new JSONObject(dataStr);
+				if (data.has("value")) {
+					JSONArray batchInstances = new JSONArray(data.getString("value"));
 
-				for (int i = 0; i < batchInstances.length(); i++) {
-					BatchInstance batchInstance = new BatchInstance(batchInstances.getJSONObject(i));
-					batchInstance.setServer(this);
-					result.add(batchInstance);
+					for (int i = 0; i < batchInstances.length(); i++) {
+						BatchInstance batchInstance = new BatchInstance(batchInstances.getJSONObject(i));
+						batchInstance.setServer(this);
+						result.add(batchInstance);
+					}
 				}
 			}
-
 		} catch (Exception e) {
 			log.error(e);
 		}
 
 		return result;
+	}
+
+	private CredentialsProvider getCredentialsProvider() {
+		if (username != null && username.length() > 0) {
+			CredentialsProvider provider = new BasicCredentialsProvider();
+			UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
+			provider.setCredentials(AuthScope.ANY, credentials);
+		}
+		return null;
 	}
 
 	public String getId() {
@@ -126,6 +146,22 @@ public class Server {
 
 	public void setDcmaUrl(String dcmaUrl) {
 		this.dcmaUrl = dcmaUrl;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	@Override

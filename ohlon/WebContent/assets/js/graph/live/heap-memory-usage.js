@@ -1,5 +1,11 @@
 window.onload = function() {
 
+	var headers = {};
+	if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
+		headers = {
+			'Authorization' : "Basic " + JOLOKIA_AUTH
+		};
+	
 	// dataPoints
 	var dataPoints1 = [];
 
@@ -45,6 +51,7 @@ window.onload = function() {
 		$.ajax({
 			url : JOLOKIA_URL + "/read/java.lang:type=Memory/HeapMemoryUsage",
 			dataType : "json",
+			headers : headers,
 			success : function(data) {
 				if (dataPoints1.length > NB_OF_VALUES)
 					dataPoints1.shift();

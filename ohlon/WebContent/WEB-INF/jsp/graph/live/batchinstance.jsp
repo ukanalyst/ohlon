@@ -5,6 +5,7 @@
 <script type="text/javascript" src="../assets/lib/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript">
 	var JOLOKIA_URL = "${jolokia}";
+	var JOLOKIA_AUTH = "${auth}";
 	var FINISHED_BI_HIDE_DELAY = ${batchinstanceHideDelay}; 
 </script>
 <script type="text/javascript" src="../assets/js/graph/live/batchinstance.js"></script>

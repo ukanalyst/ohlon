@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
-
+import org.apache.commons.codec.binary.Base64;
 import com.ohlon.domain.Server;
 import com.ohlon.service.ServerService;
 
@@ -43,6 +43,13 @@ public abstract class AbstractController {
 			params.put("batchinstanceHideDelay", batchinstanceHideDelay);
 			params.put("servers", servers);
 			params.put("currentId", currentId);
+
+			if (currentServer.getUsername() != null) {
+				String authString = currentServer.getUsername() + ":" + currentServer.getPassword();
+				params.put("auth", new String(Base64.encodeBase64(authString.getBytes())));
+			} else
+				params.put("auth", "");
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -60,7 +67,7 @@ public abstract class AbstractController {
 		return generateParams(currentId);
 	}
 
-	private JSONArray getServerData() {
+	protected JSONArray getServerData() {
 		if (this.serverData == null || this.serverData.length() == 0) {
 
 			List<Server> servers = serverService.getAvailableServers();

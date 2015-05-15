@@ -9,6 +9,7 @@
 		<intercept-url pattern="/reporting**" access="ROLE_USER" />
 		<intercept-url pattern="/batchinstance**" access="ROLE_USER" />
 		<intercept-url pattern="/batchclass**" access="ROLE_USER" />
+		<intercept-url pattern="/user**" access="ROLE_USER" />
 		<intercept-url pattern="/graph/**" access="ROLE_USER" />
 
 		<form-login login-page="/login" default-target-url="/live" authentication-failure-url="/login?error" username-parameter="username" password-parameter="password" />
@@ -19,11 +20,17 @@
 
 	<!-- BASIC AUTHENTICATION -->
 
-	<!-- <authentication-manager> <authentication-provider> <user-service> <user name="ephesoft" password="demo" authorities="ROLE_USER" /> </user-service> </authentication-provider> </authentication-manager> -->
+	<authentication-manager>
+		<authentication-provider>
+			<user-service>
+				<user name="ohlon" password="ohlon" authorities="ROLE_USER" />
+			</user-service>
+		</authentication-provider>
+	</authentication-manager>
 
 	<!-- LDAP AUTHENTICATION -->
-
-	<ldap-server id="ldapServer" url="ldap://172.16.22.248:389/dc=bataon,dc=com" />
+	<!-- 
+	<ldap-server id="ldapServer" url="ldap://yourldap.com:389/dc=bataon,dc=com" />
 
 	<beans:bean id="customAuthoritiesPopulator" class="com.ohlon.security.CustomLdapAuthoritiesPopulator" />
 
@@ -46,5 +53,5 @@
 	<authentication-manager>
 		<authentication-provider ref="ldapAuthProvider" />
 	</authentication-manager>
-
+ 	-->
 </beans:beans>
