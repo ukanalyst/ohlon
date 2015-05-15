@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     May 15, 2015 11:03:26 AM                                                        
+
+     Jolokia Build File    
+     This ANT file will build the customized Jolokia WAR file for Ohlon.
+                   
+     benjamin.chevallerea                                                                
+     ====================================================================== -->
+<project name="Jolokia Build File" default="package">
+
+	<description>
+            This ANT file will build the customized Jolokia WAR file for Ohlon.
+    </description>
+
+	<target name="package" depends="clean" description="This ANT file will build the customized Jolokia WAR file for Ohlon.">
+		<zip destfile="./target/jolokia.war">
+			<zipfileset includes="**/*" dir="./source">
+			</zipfileset>
+		</zip>
+	</target>
+
+	<target name="clean">
+		<delete dir="./target">
+		</delete>
+		<mkdir dir="./target" />
+	</target>
+
+</project>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<restrict>
+
+	<!-- Restrict access only via the specified methods Example which allows only POST requests: <http> <method>post</method> </http> -->
+
+	<http>
+		<method>get</method>
+	</http>
+
+	<commands>
+	</commands>
+
+	<allow>
+		<mbean>
+			<name>ephesoft:type=batchinstance-stats</name>
+			<operation mode="exec">*</operation>
+			<attribute mode="read">*</attribute>
+		</mbean>
+		<mbean>
+			<name>ephesoft:type=reporting-stats</name>
+			<operation mode="exec">*</operation>
+			<attribute mode="read">*</attribute>
+		</mbean>
+		<mbean>
+			<name>ephesoft:type=system-folder</name>
+			<operation mode="exec">*</operation>
+			<attribute mode="read">*</attribute>
+		</mbean>
+		<mbean>
+			<name>ephesoft:type=application-details</name>
+			<operation mode="exec">*</operation>
+			<attribute mode="read">*</attribute>
+		</mbean>
+		<mbean>
+			<name>java.lang:type=OperatingSystem</name>
+			<attribute mode="read">ProcessCpuLoad</attribute>
+		</mbean>
+		<mbean>
+			<name>java.lang:type=Memory</name>
+			<attribute mode="read">HeapMemoryUsage</attribute>
+		</mbean>
+	</allow>
+
+	<deny>
+	</deny>
+</restrict>
