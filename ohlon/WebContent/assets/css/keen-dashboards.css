@@ -110,3 +110,17 @@ body.application hr {
 .chart-stage .metric-main.red {
 	background: #BF2E21;
 }
+
+.error-indicator {
+	border-radius: 50%;
+	behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+	width: 30px;
+	height: 30px;
+	padding: 5px 4px;
+	background: #e8442c;
+	color: white;
+	text-align: center;
+	margin-top: 10px;
+	margin-left: -10px;
+	display: none;
+}
