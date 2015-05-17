@@ -49,6 +49,8 @@ div[role='navigation'] .container {
 			<ul class="nav navbar-nav">
 
 				<li><a href="./live">Live</a></li>
+				<li><a href="./error">Error</a></li>
+				<li><div class="error-indicator">0</div></li>
 				<li><a href="./reporting">Analysis</a></li>
 				<li><a href="./batchclass">Batch Class</a></li>
 				<li><a href="./batchinstance">Batch Instance</a></li>

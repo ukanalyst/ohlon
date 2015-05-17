@@ -32,6 +32,11 @@
 			<attribute mode="read">*</attribute>
 		</mbean>
 		<mbean>
+			<name>ephesoft:type=ohlon-logger</name>
+			<operation mode="exec">*</operation>
+			<attribute mode="read">*</attribute>
+		</mbean>
+		<mbean>
 			<name>java.lang:type=OperatingSystem</name>
 			<attribute mode="read">ProcessCpuLoad</attribute>
 		</mbean>

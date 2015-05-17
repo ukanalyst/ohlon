@@ -12,6 +12,7 @@
 				<entry key="ephesoft:type=reporting-stats" value-ref="jmxReportingStats" />
 				<entry key="ephesoft:type=system-folder" value-ref="jmxSystemFolderExporter" />
 				<entry key="ephesoft:type=application-details" value-ref="jmxApplicationDetails" />
+				<entry key="ephesoft:type=ohlon-logger" value-ref="jmxOhlonLogger" />
 			</map>
 		</property>
 	</bean>
@@ -20,5 +21,6 @@
 	<bean class="com.ohlon.ephesoft.jmx.ReportingStats" id="jmxReportingStats" />
 	<bean class="com.ohlon.ephesoft.jmx.SystemFolderExporter" id="jmxSystemFolderExporter" />
 	<bean class="com.ohlon.ephesoft.jmx.ApplicationDetails" id="jmxApplicationDetails" />
+	<bean class="com.ohlon.ephesoft.jmx.LoggerExporter" id="jmxOhlonLogger" />
 
 </beans>

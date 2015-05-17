@@ -72,6 +72,11 @@ public class MainController extends AbstractController {
 	public ModelAndView user(@ModelAttribute("currentServer") Server currentServer) {
 		return new ModelAndView("user", generateParams(currentServer.getId()));
 	}
+	
+	@RequestMapping("/error")
+	public ModelAndView error(@ModelAttribute("currentServer") Server currentServer) {
+		return new ModelAndView("error", generateParams(currentServer.getId()));
+	}
 
 	/***
 	 * LIVE GRAPHS
