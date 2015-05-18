@@ -46,12 +46,12 @@ window.onload = function() {
 						var stacktrace = entry.throwableStrRep.join("<br />").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
 						// Add the logentry
 						var html = "<tr id='" + entry.id + "' class='logEntry'>";
+						html += "<td><span class='viewStackTrace glyphicon glyphicon-list'></span>&nbsp;&nbsp;<span class='deleteEntry glyphicon glyphicon-remove'></span>&nbsp;<div style='display:none;' class='stacktrace'>" + stacktrace + "</div></td>";
 						html += "<td>" + entry.date + "</td>";
 						html += "<td>" + entry.threadName + "</td>";
 						html += "<td>" + entry.logLevel + "</td>";
 						html += "<td>" + entry.loggerName + "</td>";
 						html += "<td>" + entry.message + "</td>";
-						html += "<td><span class='viewStackTrace glyphicon glyphicon-list'></span>&nbsp;&nbsp;<span class='deleteEntry glyphicon glyphicon-remove'></span>&nbsp;<div style='display:none;' class='stacktrace'>" + stacktrace + "</div></td>";
 						html += "</tr>";
 
 						var newLine = $(html);
