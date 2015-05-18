@@ -10,6 +10,7 @@
 		<intercept-url pattern="/batchinstance**" access="ROLE_USER" />
 		<intercept-url pattern="/batchclass**" access="ROLE_USER" />
 		<intercept-url pattern="/user**" access="ROLE_USER" />
+		<intercept-url pattern="/error**" access="ROLE_USER" />
 		<intercept-url pattern="/graph/**" access="ROLE_USER" />
 
 		<form-login login-page="/login" default-target-url="/live" authentication-failure-url="/login?error" username-parameter="username" password-parameter="password" />
