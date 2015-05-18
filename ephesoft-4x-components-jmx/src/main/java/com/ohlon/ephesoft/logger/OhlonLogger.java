@@ -48,6 +48,7 @@ public class OhlonLogger extends AppenderSkeleton {
 			log.setThrowable(event.getThrowableStrRep());
 			logList.insert(log);
 		}
+
 	}
 
 }
