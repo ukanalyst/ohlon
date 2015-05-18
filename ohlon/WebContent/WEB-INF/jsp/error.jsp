@@ -44,12 +44,21 @@
 						<table id="logEntries" class="table table-hover">
 							<thead>
 								<tr>
+<<<<<<< HEAD
 									<th>Actions</th>
 									<th style="min-width: 150px;">Time</th>
 									<th>Thread Name</th>
 									<th>Level</th>
 									<th>LoggerName</th>
 									<th>Message</th>
+=======
+									<th style="min-width: 150px;">Time</th>
+									<th>Thread Name</th>
+									<th>Level</th>
+									<th>LoggerName</th>
+									<th>Message</th>
+									<th>Actions</th>
+>>>>>>> branch 'master' of https://github.com/bchevallereau/ohlon.git
 								</tr>
 							</thead>
 							<tbody>
