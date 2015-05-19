@@ -81,6 +81,10 @@ window.onload = function() {
 						}
 					}
 
+					// Update main properties
+					start = min_start;
+					end = max_end;
+					
 					// Update duration properties
 					total_time = max_end.getTime() - min_start.getTime();
 					duration = total_time;
@@ -103,10 +107,10 @@ window.onload = function() {
 								current_time_module = start;
 
 							// Add the first waiting piece
-							addTimeSlot($("#modules")[0], startModule.getTime() - current_time_module, duration, "progress-bar-waiting");
+							addTimeSlot($("#modules")[0], startModule.getTime() - current_time_module.getTime(), duration, "progress-bar-waiting");
 
 							// Add the first waiting piece
-							addTimeSlot($("#modules")[0], endModule.getTime() - startModule.getTime(), duration, "progress-bar-success");
+							addTimeSlot($("#modules")[0], endModule.getTime() - startModule.getTime(), duration, "progress-bar-success", d[i].WORKFLOW_NAME);
 
 							// Add the artifact detail
 							addArtifactDetails($("#modules-details")[0], d[i].WORKFLOW_NAME, startModule, endModule, "ephesoft-module");
@@ -123,10 +127,10 @@ window.onload = function() {
 								current_time_plugin = start;
 
 							// Add the first waiting piece
-							addTimeSlot($("#plugins")[0], startPlugin.getTime() - current_time_plugin, duration, "progress-bar-waiting");
+							addTimeSlot($("#plugins")[0], startPlugin.getTime() - current_time_plugin.getTime(), duration, "progress-bar-waiting");
 
-							// Add the first waiting piece
-							addTimeSlot($("#plugins")[0], endPlugin.getTime() - startPlugin.getTime(), duration, "progress-bar-success");
+							// Add the first execution details
+							addTimeSlot($("#plugins")[0], endPlugin.getTime() - startPlugin.getTime(), duration, "progress-bar-success", d[i].WORKFLOW_NAME);
 
 							// Add the artifact detail
 							addArtifactDetails($("div[label='" + current_label_module + "'] a")[0], d[i].WORKFLOW_NAME, startPlugin, endPlugin, "ephesoft-plugin");
@@ -139,7 +143,17 @@ window.onload = function() {
 						}
 					}
 
-					// 
+					// Add the last waiting piece for plugins
+					addTimeSlot($("#plugins")[0], end - current_time_plugin, duration, "progress-bar-waiting");
+
+					// Bind mousenter and mouseleave events
+					$("div.artifact-detail").mouseenter(function() {
+						var artifactId = $(this).attr("label");
+						$("div.progress-bar[artifactname='" + artifactId + "']").addClass("highlight");
+					}).mouseleave(function() {
+						var artifactId = $(this).attr("label");
+						$("div.progress-bar[artifactname='" + artifactId + "']").removeClass("highlight");
+					});
 
 					// Update the execution time percentage
 					var percentage = 100 * execution_time / duration;
@@ -161,8 +175,18 @@ window.onload = function() {
 	}
 };
 
-function addTimeSlot(container, length, biDuration, className) {
-	$(container).append("<div class=\"progress-bar " + className + "\" style=\"width: " + (length * 100.0 / biDuration) + "%\"></div>");
+function addTimeSlot(container, length, biDuration, className, artifactName) {
+	// Check the artifact name
+	if (artifactName == null)
+		artifactName = "";
+
+	// Compute the class name
+	var nbOfExistingSlots = $(container).find("div." + className).length;
+	if (nbOfExistingSlots % 2 == 0)
+		className += " odd";
+
+	if (length > 0)
+		$(container).append("<div artifactName=\"" + artifactName + "\" class=\"progress-bar " + className + "\" style=\"width: " + (length * 100.0 / biDuration) + "%\"></div>");
 }
 
 function addArtifactDetails(container, label, start, end, className) {
@@ -314,60 +338,6 @@ function compareXMLFile(e) {
 
 							$("#previewfile").html("<pre class='compare-file'></pre>");
 							$("#previewfile pre").html(fragment);
-
-							/*
-							 * var data = diffString(src_data, dest_data);
-							 * console.log(data); data = data.replace(/</g,
-							 * "&lt;"); data = data.replace(/>/g, "&gt;"); data =
-							 * data.replace(/\t/g, " ");
-							 * 
-							 * $("#previewfile").html('<pre class="prettyprint">' +
-							 * data + '</pre>'); prettyPrint();
-							 */
-
-							// Clean del and ins tags
-							// var html = $("#previewfile pre").html();
-							/*
-							 * html = html.replace(/(<span
-							 * class=".*">)&lt;del&gt;/mg, "&lt;del&gt;$1");
-							 * html = html.replace(/(<span
-							 * class=".*">)&lt;\/del&gt;/mg, "&lt;\/del&gt;$1");
-							 * html = html.replace(/(<span
-							 * class=".*">)&lt;ins&gt;/mg, "&lt;ins&gt;$1");
-							 * html = html.replace(/(<span
-							 * class=".*">)&lt;\/ins&gt;/mg, "&lt;\/ins&gt;$1");
-							 * html = html.replace(/&lt;\/ins&gt;<span
-							 * class="tag">&lt;ins&gt;/g,
-							 * "&lt;\/ins&gt;&lt;ins&gt;<span class=\"tag\">");
-							 */
-
-							/*
-							 * html = html.replace(/&lt;del&gt;/g, "<span
-							 * class='delete-text'>"); html =
-							 * html.replace(/&lt;\/del&gt;/g, "</span>"); html =
-							 * html.replace(/&lt;ins&gt;/g, "<span
-							 * class='insert-text'>"); html =
-							 * html.replace(/&lt;\/ins&gt;/g, "</span>");
-							 */
-
-							/*
-							 * html = html.replace(/<span
-							 * class="tag">&lt;del&gt;<\/span>/g, "<span
-							 * class='delete-text'>"); html = html.replace(/<span
-							 * class="tag">&lt;\/del&gt;<\/span>/g, "</span>");
-							 * html = html.replace(/<span
-							 * class="tag">&lt;ins&gt;<\/span>/g, "<span
-							 * class='insert-text'>"); html = html.replace(/<span
-							 * class="tag">&lt;\/ins&gt;<\/span>/g, "</span>");
-							 */
-
-							// html =
-							// html.replace(/&lt;del&gt;([.\s\S]*)&lt;\/del&gt;/mg,
-							// "<span class='delete-text'>$1</span>");
-							// html =
-							// html.replace(/&lt;ins&gt;([.\s\S]*)&lt;\/ins&gt;/mg,
-							// "<span class='insert-text'>$1</span>");
-							// $("#previewfile pre").html(html);
 						} else {
 							$("#previewfile").append('<div class="error-notice"><div class="oaerror info"><strong>INFO</strong> - ' + result.message + '</div></div>');
 						}

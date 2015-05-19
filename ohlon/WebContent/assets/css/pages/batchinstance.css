@@ -6,8 +6,16 @@
 	width: 360px;
 }
 
+.progress-bar.highlight {
+	background-color: #3387FF !important;
+}
+
 .progress-bar-waiting {
 	background-color: transparent;
+}
+
+.progress-bar-success.odd {
+	background-color: #7FFF7F;
 }
 
 .progress {
