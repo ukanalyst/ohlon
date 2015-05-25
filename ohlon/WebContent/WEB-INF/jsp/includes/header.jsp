@@ -55,6 +55,7 @@ div[role='navigation'] .container {
 				<li><a href="./batchclass">Batch Class</a></li>
 				<li><a href="./batchinstance">Batch Instance</a></li>
 				<li><a href="./user">Manual Steps</a></li>
+				<li><a href="./serverstatus">Server Status</a></li>
 
 			</ul>
 			<ul class="nav navbar-nav navbar-right">

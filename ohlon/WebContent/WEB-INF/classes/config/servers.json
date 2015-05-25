@@ -10,21 +10,27 @@
         },
         "ephesoft-4x": {
             "label": "Ephesoft 4.x",
-            "jolokia": "http://172.16.22.244:8080/jolokia",
-            "dcma": "http://172.16.22.244:8080/dcma",
-            "data": "http://172.16.22.244:8080/dcma-batches/ephesoft-system-folder"
+            "jolokia": "http://172.16.22.129:8080/jolokia",
+            "dcma": "http://172.16.22.129:8080/dcma",
+            "data": "http://172.16.22.129:8080/dcma-batches/ephesoft-system-folder",
+            "username": "ohlon",
+            "password": "ohlon"
         },
         "docean-4x-01": {
             "label": "Cluster Node 01",
             "jolokia": "http://demo-c1.ohlon.com/jolokia",
             "dcma": "http://demo-c1.ohlon.com/dcma",
-            "data": "http://demo-c1.ohlon.com/dcma-batches/ephesoft-system-folder"
+            "data": "http://demo-c1.ohlon.com/dcma-batches/ephesoft-system-folder",
+            	    "username": "ohlon",
+	    "password": "J#AWMoar*IFg*eQI5!im"
         },
         "docean-4x-02": {
             "label": "Cluster Node 02",
             "jolokia": "http://demo-c2.ohlon.com/jolokia",
             "dcma": "http://demo-c2.ohlon.com/dcma",
-            "data": "http://demo-c2.ohlon.com/dcma-batches/ephesoft-system-folder"
+            "data": "http://demo-c2.ohlon.com/dcma-batches/ephesoft-system-folder",
+	    "username": "ohlon",
+	    "password": "yIk$r3mDA5KCBZX#y6#q"
         }
     }
 }

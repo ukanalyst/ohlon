@@ -1,0 +1,216 @@
+.modal-dialog {
+	width: 95%;
+}
+
+#month {
+	width: 135px;
+	margin: auto;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.week {
+	padding: 5px;
+	margin: 5px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border-radius: 5px;
+	border: 1px solid #d7d7d7;
+	-webkit-box-sizing: border-box;
+}
+
+.week .label {
+	color: #666;
+	font-size: 100%
+}
+
+.week .daysContainer {
+	width: 100%;
+	display: table;
+	border-spacing: 10px;
+}
+
+.week .day {
+	padding: 5px;
+	display: table-cell;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border-radius: 5px;
+	border: 1px solid #d7d7d7;
+	width: 12.5%;
+	display: table-cell;
+}
+
+.week .day .label {
+	color: black;
+	font-size: 75%;
+	font-weight: 500;
+}
+
+.week .day.disabled {
+	background-color: rgb(242, 242, 242);
+}
+
+.week .day.disabled .label {
+	color: #d7d7d7 !important;
+}
+
+.chart-stage .metric-container {
+	width: 100%;
+}
+
+.day .metric {
+	width: 100px;
+	height: 100px;
+	-moz-border-radius: 50px;
+	-webkit-border-radius: 50px;
+	border-radius: 50px;
+	margin: auto auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	text-align: center;
+	color: rgb(242, 241, 240);
+	font-size: 20px;
+	font-weight: 500;
+	background: rgb(241, 165, 0);
+	padding-top: 20px;
+}
+
+.day .metric.week {
+	background: rgb(159, 188, 192);
+}
+
+.day.disabled .metric {
+	background: #d7d7d7;
+}
+
+.day.disabled .action {
+	display: none;
+}
+
+.day .metric .percentage {
+	line-height: 40px;
+}
+
+.day .metric.week .percentage {
+	line-height: 55px;
+}
+
+.day .metric .time {
+	font-size: 12px;
+}
+
+.weekResume .label {
+	color: rgb(242, 241, 240) !important;
+}
+
+.weekResume .metric {
+	background-color: rgb(242, 241, 240) !important;
+	color: black;
+}
+
+.showDetails {
+	float: right;
+	clear: both;
+	margin-top: 3px;
+	margin-right: 3px;
+}
+
+.dayStatistic {
+	display: table;
+	margin: auto;
+	width: 90%
+}
+
+.dayStatistic .row {
+	display: table-row;
+}
+
+.dayStatistic .row.header .cell {
+	font-size: 15px;
+	line-height: 50px;
+	font-weight: bold;
+}
+
+.dayStatistic .cell {
+	display: table-cell;
+	text-align: center;
+	line-height: 10px;
+	vertical-align: middle;
+	border-bottom: 1px solid #ccc;
+}
+
+.dayStatistic .cell.hour {
+	width: 45px;
+	font-style: italic;
+}
+
+.dayStatistic .progress {
+	width: 100%;
+	margin: 0px;
+	border-radius: 0px;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	height: 25px;
+}
+
+.dayStatistic .progress-bar {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	background-color: rgb(57, 172, 57);
+}
+
+.dayStatistic .progress-bar.inactive {
+	background: rgb(172, 57, 57);
+}
+
+.legend {
+	border: 1px solid #d7d7d7;
+	border-radius: 5px;
+	padding: 10px;
+	margin-top: 30px;
+}
+
+.legend .item {
+	clear: both;
+	display: table-row;
+}
+
+.legend .item .color {
+	width: 20px;
+	height: 20px;
+	display: table-cell;
+}
+
+.legend .item .color.active {
+	background-color: rgb(57, 172, 57);
+}
+
+.legend .item .color.inactive {
+	background-color: rgb(172, 57, 57);
+}
+
+.legend .item .title {
+	display: table-cell;
+	line-height: 25px;
+	padding-left: 10px;
+}
+
+.global-statistic .metric {
+	width: 150px;
+	height: 78px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	margin: auto auto;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	text-align: center;
+	color: rgb(242, 241, 240);
+	font-size: 18px;
+	font-weight: 500;
+	background: transparent;
+	padding-top: 27px;
+}
