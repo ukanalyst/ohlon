@@ -12,6 +12,7 @@
 <script type="text/javascript">
 	var JOLOKIA_URL = "${jolokia}";
 	var JOLOKIA_AUTH = "${auth}";
+	var SERVER_NAMES = ${server_name};
 </script>
 
 <link rel="stylesheet" href="./assets/css/pages/serverstatus.css">

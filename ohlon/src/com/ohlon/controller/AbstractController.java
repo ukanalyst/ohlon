@@ -4,13 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
-import org.apache.commons.codec.binary.Base64;
+
 import com.ohlon.domain.Server;
 import com.ohlon.service.ServerService;
 
@@ -40,6 +41,7 @@ public abstract class AbstractController {
 
 			params.put("jolokia", currentServer.getJolokiaUrl());
 			params.put("dataUrl", currentServer.getDataUrl());
+			params.put("server_name", toString(currentServer.getServerNames()));
 			params.put("batchinstanceHideDelay", batchinstanceHideDelay);
 			params.put("servers", servers);
 			params.put("currentId", currentId);
@@ -88,5 +90,19 @@ public abstract class AbstractController {
 
 		}
 		return this.serverData;
+	}
+
+	protected String toString(String[] data) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("[");
+		for (int i = 0; i < data.length; i++) {
+			builder.append("'");
+			builder.append(data[i]);
+			builder.append("'");
+			if (i < data.length - 1)
+				builder.append(",");
+		}
+		builder.append("]");
+		return builder.toString();
 	}
 }

@@ -25,9 +25,12 @@ public class ServerStatus {
 
 	@ManagedOperation(description = "Get server statistics over a month")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "month", description = "Month in format (MM-YYYY)") })
-	public String getMonthlyStatistics(String month) {
+	public String getMonthlyStatistics(String month, String server_names) {
 
 		JSONArray data = new JSONArray();
+		String[] serverNames = new String[0];
+		if (!server_names.equalsIgnoreCase("na"))
+			serverNames = server_names.split("\\|");
 
 		try {
 			SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -51,16 +54,38 @@ public class ServerStatus {
 			lastDayOfTheMonth.set(Calendar.SECOND, 59);
 
 			Connection c = DBUtils.getReportDBConnection();
+			PreparedStatement statement;
 
-			// Create the sql query
-			String sql = "SELECT start_hour, end_hour FROM server_status WHERE (start_hour <= ? AND end_hour >= ?) OR (start_hour >= ? AND end_hour <= ?) OR (start_hour <= ? AND end_hour >= ?) ORDER BY start_hour, end_hour";
-			PreparedStatement statement = c.prepareStatement(sql);
-			statement.setTimestamp(1, new java.sql.Timestamp(firstDayOfTheMonth.getTimeInMillis()));
-			statement.setTimestamp(2, new java.sql.Timestamp(firstDayOfTheMonth.getTimeInMillis()));
-			statement.setTimestamp(3, new java.sql.Timestamp(firstDayOfTheMonth.getTimeInMillis()));
-			statement.setTimestamp(4, new java.sql.Timestamp(lastDayOfTheMonth.getTimeInMillis()));
-			statement.setTimestamp(5, new java.sql.Timestamp(lastDayOfTheMonth.getTimeInMillis()));
-			statement.setTimestamp(6, new java.sql.Timestamp(lastDayOfTheMonth.getTimeInMillis()));
+			if (serverNames.length == 0) {
+				// Create the sql query
+				String sql = "SELECT start_hour, end_hour FROM server_status WHERE (start_hour <= ? AND end_hour >= ?) OR (start_hour >= ? AND end_hour <= ?) OR (start_hour <= ? AND end_hour >= ?) ORDER BY start_hour, end_hour";
+				statement = c.prepareStatement(sql);
+				statement.setTimestamp(1, new java.sql.Timestamp(firstDayOfTheMonth.getTimeInMillis()));
+				statement.setTimestamp(2, new java.sql.Timestamp(firstDayOfTheMonth.getTimeInMillis()));
+				statement.setTimestamp(3, new java.sql.Timestamp(firstDayOfTheMonth.getTimeInMillis()));
+				statement.setTimestamp(4, new java.sql.Timestamp(lastDayOfTheMonth.getTimeInMillis()));
+				statement.setTimestamp(5, new java.sql.Timestamp(lastDayOfTheMonth.getTimeInMillis()));
+				statement.setTimestamp(6, new java.sql.Timestamp(lastDayOfTheMonth.getTimeInMillis()));
+			} else {
+				StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < serverNames.length; i++)
+					builder.append("?,");
+				builder.deleteCharAt(builder.length() - 1);
+
+				// Create the sql query
+				String sql = "SELECT start_hour, end_hour FROM server_status WHERE ((start_hour <= ? AND end_hour >= ?) OR (start_hour >= ? AND end_hour <= ?) OR (start_hour <= ? AND end_hour >= ?)) AND (server_name IN ("
+						+ builder.toString() + ")) ORDER BY start_hour, end_hour";
+				statement = c.prepareStatement(sql);
+				statement.setTimestamp(1, new java.sql.Timestamp(firstDayOfTheMonth.getTimeInMillis()));
+				statement.setTimestamp(2, new java.sql.Timestamp(firstDayOfTheMonth.getTimeInMillis()));
+				statement.setTimestamp(3, new java.sql.Timestamp(firstDayOfTheMonth.getTimeInMillis()));
+				statement.setTimestamp(4, new java.sql.Timestamp(lastDayOfTheMonth.getTimeInMillis()));
+				statement.setTimestamp(5, new java.sql.Timestamp(lastDayOfTheMonth.getTimeInMillis()));
+				statement.setTimestamp(6, new java.sql.Timestamp(lastDayOfTheMonth.getTimeInMillis()));
+
+				for (int i = 0; i < serverNames.length; i++)
+					statement.setString(7 + i, serverNames[i]);
+			}
 
 			// Execute the query
 			ResultSet rs = statement.executeQuery();
@@ -132,6 +157,8 @@ public class ServerStatus {
 									slotStart.setTimeInMillis(rs.getTimestamp("start_hour").getTime());
 									slotEnd.setTimeInMillis(rs.getTimestamp("end_hour").getTime());
 								}
+								
+								isRunning = false;
 							}
 						}
 
@@ -184,9 +211,12 @@ public class ServerStatus {
 
 	@ManagedOperation(description = "Get server statistics over a day")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "day", description = "Day in format (DD-MM-YYYY)") })
-	public String getDailyStatistics(String day) {
+	public String getDailyStatistics(String day, String server_names) {
 
 		JSONArray data = new JSONArray();
+		String[] serverNames = new String[0];
+		if (!server_names.equalsIgnoreCase("na"))
+			serverNames = server_names.split("\\|");
 
 		try {
 			SimpleDateFormat outputFormat = new SimpleDateFormat("H");
@@ -208,16 +238,38 @@ public class ServerStatus {
 			endOfTheDay.set(Calendar.SECOND, 59);
 
 			Connection c = DBUtils.getReportDBConnection();
+			PreparedStatement statement;
 
-			// Create the sql query
-			String sql = "SELECT start_hour, end_hour FROM server_status WHERE (start_hour <= ? AND end_hour >= ?) OR (start_hour >= ? AND end_hour <= ?) OR (start_hour <= ? AND end_hour >= ?) ORDER BY start_hour, end_hour";
-			PreparedStatement statement = c.prepareStatement(sql);
-			statement.setTimestamp(1, new java.sql.Timestamp(beginningOfTheDay.getTimeInMillis()));
-			statement.setTimestamp(2, new java.sql.Timestamp(beginningOfTheDay.getTimeInMillis()));
-			statement.setTimestamp(3, new java.sql.Timestamp(beginningOfTheDay.getTimeInMillis()));
-			statement.setTimestamp(4, new java.sql.Timestamp(endOfTheDay.getTimeInMillis()));
-			statement.setTimestamp(5, new java.sql.Timestamp(endOfTheDay.getTimeInMillis()));
-			statement.setTimestamp(6, new java.sql.Timestamp(endOfTheDay.getTimeInMillis()));
+			if (serverNames.length == 0) {
+				// Create the sql query
+				String sql = "SELECT start_hour, end_hour FROM server_status WHERE (start_hour <= ? AND end_hour >= ?) OR (start_hour >= ? AND end_hour <= ?) OR (start_hour <= ? AND end_hour >= ?) ORDER BY start_hour, end_hour";
+				statement = c.prepareStatement(sql);
+				statement.setTimestamp(1, new java.sql.Timestamp(beginningOfTheDay.getTimeInMillis()));
+				statement.setTimestamp(2, new java.sql.Timestamp(beginningOfTheDay.getTimeInMillis()));
+				statement.setTimestamp(3, new java.sql.Timestamp(beginningOfTheDay.getTimeInMillis()));
+				statement.setTimestamp(4, new java.sql.Timestamp(endOfTheDay.getTimeInMillis()));
+				statement.setTimestamp(5, new java.sql.Timestamp(endOfTheDay.getTimeInMillis()));
+				statement.setTimestamp(6, new java.sql.Timestamp(endOfTheDay.getTimeInMillis()));
+			} else {
+				StringBuilder builder = new StringBuilder();
+				for (int i = 0; i < serverNames.length; i++)
+					builder.append("?,");
+				builder.deleteCharAt(builder.length() - 1);
+
+				// Create the sql query
+				String sql = "SELECT start_hour, end_hour FROM server_status WHERE ((start_hour <= ? AND end_hour >= ?) OR (start_hour >= ? AND end_hour <= ?) OR (start_hour <= ? AND end_hour >= ?)) AND (server_name IN ("
+						+ builder.toString() + ")) ORDER BY start_hour, end_hour";
+				statement = c.prepareStatement(sql);
+				statement.setTimestamp(1, new java.sql.Timestamp(beginningOfTheDay.getTimeInMillis()));
+				statement.setTimestamp(2, new java.sql.Timestamp(beginningOfTheDay.getTimeInMillis()));
+				statement.setTimestamp(3, new java.sql.Timestamp(beginningOfTheDay.getTimeInMillis()));
+				statement.setTimestamp(4, new java.sql.Timestamp(endOfTheDay.getTimeInMillis()));
+				statement.setTimestamp(5, new java.sql.Timestamp(endOfTheDay.getTimeInMillis()));
+				statement.setTimestamp(6, new java.sql.Timestamp(endOfTheDay.getTimeInMillis()));
+
+				for (int i = 0; i < serverNames.length; i++)
+					statement.setString(7 + i, serverNames[i]);
+			}
 
 			// Execute the query
 			ResultSet rs = statement.executeQuery();

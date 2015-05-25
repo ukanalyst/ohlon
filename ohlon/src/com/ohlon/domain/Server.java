@@ -30,6 +30,7 @@ public class Server {
 	private String dcmaUrl;
 	private String username;
 	private String password;
+	private String[] serverNames;
 
 	private Log log = LogFactory.getLog(Server.class);
 
@@ -48,6 +49,13 @@ public class Server {
 				this.username = data.getString("username");
 			if (data.has("password"))
 				this.password = data.getString("password");
+			if (data.has("server_name")) {
+				JSONArray config = data.getJSONArray("server_name");
+				this.serverNames = new String[config.length()];
+				for (int i = 0; i < config.length(); i++)
+					this.serverNames[i] = config.getString(i);
+			} else
+				this.serverNames = new String[0];
 		} catch (JSONException e) {
 			log.error(e);
 		}
@@ -162,6 +170,14 @@ public class Server {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String[] getServerNames() {
+		return serverNames;
+	}
+
+	public void setServerNames(String[] serverNames) {
+		this.serverNames = serverNames;
 	}
 
 	@Override

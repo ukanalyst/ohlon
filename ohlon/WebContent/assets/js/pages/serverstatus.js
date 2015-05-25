@@ -82,8 +82,18 @@ window.onload = function() {
 		}
 
 		// Send a query to ephesoft
+		var paramServerNames = "";
+		if (SERVER_NAMES.length == 0)
+			paramServerNames = "na";
+		else
+			for (var i = 0; i < SERVER_NAMES.length; i++) {
+				if (paramServerNames.length > 0)
+					paramServerNames += "|";
+				paramServerNames += SERVER_NAMES[i].replace(/\//g, "!/");
+			}
+
 		$.ajax({
-			url : JOLOKIA_URL + '/exec/ephesoft:type=server-status/getMonthlyStatistics(java.lang.String)/' + $("#month input").val(),
+			url : JOLOKIA_URL + '/exec/ephesoft:type=server-status/getMonthlyStatistics(java.lang.String,java.lang.String)/' + $("#month input").val() + "/" + paramServerNames,
 			dataType : "json",
 			headers : headers,
 			success : function(data) {
@@ -226,8 +236,19 @@ window.onload = function() {
 	}
 
 	function showDetails(dayId) {
+
+		var paramServerNames = "";
+		if (SERVER_NAMES.length == 0)
+			paramServerNames = "na";
+		else
+			for (var i = 0; i < SERVER_NAMES.length; i++) {
+				if (paramServerNames.length > 0)
+					paramServerNames += "|";
+				paramServerNames += SERVER_NAMES[i].replace(/\//g, "!/");
+			}
+
 		$.ajax({
-			url : JOLOKIA_URL + '/exec/ephesoft:type=server-status/getDailyStatistics(java.lang.String)/' + dayId,
+			url : JOLOKIA_URL + '/exec/ephesoft:type=server-status/getDailyStatistics(java.lang.String,java.lang.String)/' + dayId + '/' + paramServerNames,
 			dataType : "json",
 			headers : headers,
 			success : function(data) {
