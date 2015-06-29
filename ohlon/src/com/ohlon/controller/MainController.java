@@ -52,34 +52,40 @@ public class MainController extends AbstractController {
 	}
 
 	@RequestMapping("/batchclass")
-	public ModelAndView batchclass(@ModelAttribute("currentServer") Server currentServer) {
+	public ModelAndView batchclass(@RequestParam(value = "id", required = false) String serverId, @ModelAttribute("currentServer") Server currentServer) {
+		currentServer.setId(serverId);
 		return new ModelAndView("batchclass", generateParams(currentServer.getId()));
 	}
 
 	@RequestMapping("/batchinstance")
-	public ModelAndView batchinstance(@RequestParam(value = "identifier", required = false) String identifier, @ModelAttribute("currentServer") Server currentServer) {
+	public ModelAndView batchinstance(@RequestParam(value = "id", required = false) String serverId, @RequestParam(value = "identifier", required = false) String identifier, @ModelAttribute("currentServer") Server currentServer) {
+		currentServer.setId(serverId);
 		Map<String, Object> params = generateParams(currentServer.getId());
 		params.put("identifier", identifier);
 		return new ModelAndView("batchinstance", params);
 	}
 
 	@RequestMapping("/reporting")
-	public ModelAndView reporting(@ModelAttribute("currentServer") Server currentServer) {
+	public ModelAndView reporting(@RequestParam(value = "id", required = false) String serverId, @ModelAttribute("currentServer") Server currentServer) {
+		currentServer.setId(serverId);
 		return new ModelAndView("reporting", generateParams(currentServer.getId()));
 	}
 
 	@RequestMapping("/user")
-	public ModelAndView user(@ModelAttribute("currentServer") Server currentServer) {
+	public ModelAndView user(@RequestParam(value = "id", required = false) String serverId, @ModelAttribute("currentServer") Server currentServer) {
+		currentServer.setId(serverId);
 		return new ModelAndView("user", generateParams(currentServer.getId()));
 	}
 
 	@RequestMapping("/error")
-	public ModelAndView error(@ModelAttribute("currentServer") Server currentServer) {
+	public ModelAndView error(@RequestParam(value = "id", required = false) String serverId, @ModelAttribute("currentServer") Server currentServer) {
+		currentServer.setId(serverId);
 		return new ModelAndView("error", generateParams(currentServer.getId()));
 	}
 
 	@RequestMapping("/serverstatus")
-	public ModelAndView serverstatus(@ModelAttribute("currentServer") Server currentServer) {
+	public ModelAndView serverstatus(@RequestParam(value = "id", required = false) String serverId, @ModelAttribute("currentServer") Server currentServer) {
+		currentServer.setId(serverId);
 		return new ModelAndView("serverstatus", generateParams(currentServer.getId()));
 	}
 

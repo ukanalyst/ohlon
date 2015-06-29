@@ -73,3 +73,15 @@ ins {
 pre.compare-file {
 	text-align: left;
 }
+
+#modules-details h5 {
+	font-size: 12px;
+}
+
+#modules-details p.list-group-item-text {
+	font-size: 11px;
+}
+
+#modules-details .list-group-item {
+	padding: 5px 5px;
+}

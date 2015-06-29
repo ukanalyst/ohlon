@@ -43,11 +43,16 @@ function generateInnerHtml(bi) {
 	var start = new Date(bi.start);
 	var end = new Date(bi.end);
 
+	var generateLink = typeof (pages) !== 'undefined' && (pages.indexOf('batchinstance') != -1 || pages.length == 0);
+	
 	var html = "";
 
 	html += "<div class='details'>";
 	html += "	<div class='row'>";
-	html += "		<div class='identifier'><a target='_parent' href='../batchinstance?identifier=" + bi.identifier + "'>" + bi.identifier + "</a>: </div>";
+	if (generateLink)
+		html += "		<div class='identifier'><a target='_parent' href='../batchinstance?identifier=" + bi.identifier + "'>" + bi.identifier + "</a>: </div>";
+	else
+		html += "		<div class='identifier'>" + bi.identifier + ": </div>";
 	html += "	</div>";
 	html += "	<div style='clear:both;'></div>";
 	html += "	<div class='row'>";

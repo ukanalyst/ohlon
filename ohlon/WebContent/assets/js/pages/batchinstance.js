@@ -84,7 +84,7 @@ window.onload = function() {
 					// Update main properties
 					start = min_start;
 					end = max_end;
-					
+
 					// Update duration properties
 					total_time = max_end.getTime() - min_start.getTime();
 					duration = total_time;
@@ -133,7 +133,22 @@ window.onload = function() {
 							addTimeSlot($("#plugins")[0], endPlugin.getTime() - startPlugin.getTime(), duration, "progress-bar-success", d[i].WORKFLOW_NAME);
 
 							// Add the artifact detail
-							addArtifactDetails($("div[label='" + current_label_module + "'] a")[0], d[i].WORKFLOW_NAME, startPlugin, endPlugin, "ephesoft-plugin");
+							var potentialModules = $("div[label='" + current_label_module + "'] > a");
+							if (potentialModules.length == 1)
+								addArtifactDetails(potentialModules[0], d[i].WORKFLOW_NAME, startPlugin, endPlugin, "ephesoft-plugin");
+							else {
+								var index = -1;
+								for (var j = 0; j < potentialModules.length; j++) {
+									var _moduleStart = parseInt($(potentialModules[j]).attr("data-start"));
+									var _moduleEnd = parseInt($(potentialModules[j]).attr("data-start"));
+									if (startPlugin.getTime() >= _moduleStart && endPlugin.getTime() <= _moduleEnd)
+										index = j;
+								}
+
+								if (index == -1)
+									index = potentialModules.length - 1;
+								addArtifactDetails(potentialModules[index], d[i].WORKFLOW_NAME, startPlugin, endPlugin, "ephesoft-plugin");
+							}
 
 							current_time_plugin = endPlugin;
 
@@ -191,7 +206,7 @@ function addTimeSlot(container, length, biDuration, className, artifactName) {
 
 function addArtifactDetails(container, label, start, end, className) {
 	var duration = end.getTime() - start.getTime();
-	$(container).append("<div duration=\"" + duration + "\" label=\"" + label + "\" class=\"artifact-detail list-group " + className + "\"><a href=\"#\" class=\"list-group-item\"><h5 class=\"list-group-item-heading\">" + label.replace(/-m|-p|BC\d+/g, "").replace(/_/g, " ") + " (" + convertDuration(end.getTime() - start.getTime()) + ")</h5><p class=\"list-group-item-text\">" + moment(start).format("hh:mm:ss") + "</p><p class=\"list-group-item-text\">" + moment(end).format("hh:mm:ss") + "</p></a></div>");
+	$(container).append("<div data-start=\"" + start.getTime() + "\" data-end=\"" + end.getTime() + "\" duration=\"" + duration + "\" label=\"" + label + "\" class=\"artifact-detail list-group " + className + "\"><a href=\"#\" class=\"list-group-item\"><h5 class=\"list-group-item-heading\">" + label.replace(/-m|-p|BC\d+/g, "").replace(/_/g, " ") + " (" + convertDuration(end.getTime() - start.getTime()) + ")</h5><p class=\"list-group-item-text\">" + moment(start).format("hh:mm:ss") + "</p><p class=\"list-group-item-text\">" + moment(end).format("hh:mm:ss") + "</p></a></div>");
 }
 
 function refreshFiles(bi) {

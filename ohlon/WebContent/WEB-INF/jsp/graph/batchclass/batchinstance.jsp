@@ -1,3 +1,6 @@
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page session="true"%>
+
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -7,6 +10,7 @@
 	var bc = "${bc}";
 	var from = "${from}";
 	var to = "${to}";
+	<c:if test="${not empty pages}" > var pages = ${pages};</c:if>
 </script>
 <link rel="stylesheet" href="../assets/css/batchinstances.css">
 <link rel="stylesheet" href="../assets/css/keen-dashboards.css">

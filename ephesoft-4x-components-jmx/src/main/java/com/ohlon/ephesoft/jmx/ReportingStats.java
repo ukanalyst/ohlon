@@ -49,6 +49,7 @@ public class ReportingStats {
 	@ManagedOperation(description = "Refresh report database")
 	public String refreshReportDatabase() {
 		try {
+			etlScheduler.setReportVariables();
 			etlScheduler.executeStandardEtl();
 			etlScheduler.executeAdvancedEtl();
 			etlScheduler.executeDashboardEtl();

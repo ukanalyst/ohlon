@@ -2,7 +2,8 @@
 <%@page session="true"%>
 
 <script type="text/javascript">
-	var servers = ${servers};
+	<c:if test="${not empty servers}" > var servers = ${servers};</c:if>
+	<c:if test="${not empty pages}" > var pages = ${pages};</c:if>
 	var currentServerId = "${currentId}";
 </script>
 
@@ -48,14 +49,14 @@ div[role='navigation'] .container {
 		<div class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
 
-				<li><a href="./live">Live</a></li>
-				<li><a href="./error">Error</a></li>
-				<li><div class="error-indicator">0</div></li>
-				<li><a href="./reporting">Analysis</a></li>
-				<li><a href="./batchclass">Batch Class</a></li>
-				<li><a href="./batchinstance">Batch Instance</a></li>
-				<li><a href="./user">Manual Steps</a></li>
-				<li><a href="./serverstatus">Server Status</a></li>
+				<li class="page-link" style="display:none;" data-pageid="live"><a href="./live">Live</a></li>
+				<li class="page-link" style="display:none;" data-pageid="error"><a href="./error">Error</a></li>
+				<li class="page-link" style="display:none;" data-pageid="error"><div class="error-indicator">0</div></li>
+				<li class="page-link" style="display:none;" data-pageid="reporting"><a href="./reporting">Analysis</a></li>
+				<li class="page-link" style="display:none;" data-pageid="batchclass"><a href="./batchclass">Batch Class</a></li>
+				<li class="page-link" style="display:none;" data-pageid="batchinstance"><a href="./batchinstance">Batch Instance</a></li>
+				<li class="page-link" style="display:none;" data-pageid="user"><a href="./user">Manual Steps</a></li>
+				<li class="page-link" style="display:none;" data-pageid="serverstatus"><a href="./serverstatus">Server Status</a></li>
 
 			</ul>
 			<ul class="nav navbar-nav navbar-right">

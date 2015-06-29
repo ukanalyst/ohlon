@@ -1,5 +1,6 @@
 package com.ohlon.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ public abstract class AbstractController {
 			params.put("batchinstanceHideDelay", batchinstanceHideDelay);
 			params.put("servers", servers);
 			params.put("currentId", currentId);
+			params.put("pages", toString(currentServer.getPages()));
 
 			if (currentServer.getUsername() != null) {
 				String authString = currentServer.getUsername() + ":" + currentServer.getPassword();
@@ -80,6 +82,10 @@ public abstract class AbstractController {
 					JSONObject serverObj = new JSONObject();
 					serverObj.put("label", server.getLabel());
 					serverObj.put("id", server.getId());
+					String defaultPageId = "live";
+					if (!Arrays.asList(server.getPages()).contains("live") && server.getPages().length > 0)
+						defaultPageId = server.getPages()[0];
+					serverObj.put("defaultPageId", defaultPageId);
 					data.put(serverObj);
 				}
 			} catch (JSONException e) {

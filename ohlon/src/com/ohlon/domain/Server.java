@@ -31,6 +31,7 @@ public class Server {
 	private String username;
 	private String password;
 	private String[] serverNames;
+	private String[] pages;
 
 	private Log log = LogFactory.getLog(Server.class);
 
@@ -56,6 +57,19 @@ public class Server {
 					this.serverNames[i] = config.getString(i);
 			} else
 				this.serverNames = new String[0];
+			if (data.has("pages")) {
+				if (data.get("pages") instanceof JSONArray) {
+					JSONArray config = data.getJSONArray("pages");
+					this.pages = new String[config.length()];
+					for (int i = 0; i < config.length(); i++)
+						this.pages[i] = config.getString(i);
+				} else {
+					Object page = data.get("pages");
+					this.pages = new String[1];
+					this.pages[0] = page.toString();
+				}
+			} else
+				this.pages = new String[0];
 		} catch (JSONException e) {
 			log.error(e);
 		}
@@ -178,6 +192,14 @@ public class Server {
 
 	public void setServerNames(String[] serverNames) {
 		this.serverNames = serverNames;
+	}
+
+	public String[] getPages() {
+		return pages;
+	}
+
+	public void setPages(String[] pages) {
+		this.pages = pages;
 	}
 
 	@Override
