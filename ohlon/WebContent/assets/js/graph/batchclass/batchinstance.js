@@ -40,8 +40,8 @@ function generateHtml(bi) {
 
 function generateInnerHtml(bi) {
 
-	var start = new Date(bi.start);
-	var end = new Date(bi.end);
+	var start = moment(bi.start).toDate();
+	var end = moment(bi.end).toDate();
 
 	var generateLink = typeof (pages) !== 'undefined' && (pages.indexOf('batchinstance') != -1 || pages.length == 0);
 	

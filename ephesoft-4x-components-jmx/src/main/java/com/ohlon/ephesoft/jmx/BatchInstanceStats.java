@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -111,11 +112,11 @@ public class BatchInstanceStats {
 
 		return result.toString();
 	}
-	
+
 	@ManagedAttribute
 	public String getActiveBatchInstancesList() {
 		JSONArray result = new JSONArray();
-		
+
 		List<BatchInstanceStatus> statusList = new ArrayList<BatchInstanceStatus>();
 		statusList.add(BatchInstanceStatus.ERROR);
 		statusList.add(BatchInstanceStatus.NEW);
@@ -126,9 +127,9 @@ public class BatchInstanceStats {
 		statusList.add(BatchInstanceStatus.READY_FOR_REVIEW);
 		statusList.add(BatchInstanceStatus.READY_FOR_VALIDATION);
 		statusList.add(BatchInstanceStatus.RUNNING);
-		
+
 		List<BatchInstance> batchInstances = batchInstanceService.getBatchInstanceByStatusList(statusList);
-		
+
 		try {
 			for (BatchInstance batchInstance : batchInstances) {
 				JSONObject bi = new JSONObject();
@@ -139,7 +140,7 @@ public class BatchInstanceStats {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return result.toString();
 	}
 
@@ -177,14 +178,22 @@ public class BatchInstanceStats {
 			statement.close();
 
 			// get the module details
-			sql = "SELECT SUBSTRING_INDEX(BUSINESS_KEY_, '.', -1) AS WORKFLOW_NAME, DURATION_, START_TIME_ AS START_, END_TIME_ AS END_ FROM ACT_HI_PROCINST proc WHERE proc.NAME_ = ?  AND SUBSTRING_INDEX(BUSINESS_KEY_, '-', -1)='m' ORDER BY ID_";
+			sql = "SELECT BUSINESS_KEY_ WORKFLOW_NAME, DURATION_, START_TIME_ AS START_, END_TIME_ AS END_ FROM ACT_HI_PROCINST proc WHERE proc.NAME_ = ?  AND SUBSTRING_INDEX(BUSINESS_KEY_, '-', -1)='m' ORDER BY ID_";
+			
+			if (DBUtils.isMSSQL())
+				sql = "SELECT BUSINESS_KEY_ WORKFLOW_NAME, DURATION_, START_TIME_ AS START_, END_TIME_ AS END_ FROM ACT_HI_PROCINST procinst WHERE procinst.NAME_ = ?  AND RIGHT(BUSINESS_KEY_, 1)='m' ORDER BY ID_";
+			
 			statement = c.prepareStatement(sql);
 			statement.setString(1, batchInstance.getIdentifier());
 			rs = statement.executeQuery();
 			JSONArray modules = new JSONArray();
 			while (rs.next()) {
 				JSONObject module = new JSONObject();
-				module.put("wf_module_label", rs.getString("WORKFLOW_NAME").replaceAll("_", " "));
+				
+				String workflowName = rs.getString("WORKFLOW_NAME");
+				workflowName = workflowName.replaceAll("^" + batchInstance.getIdentifier() + "\\.", "");
+				workflowName = workflowName.replaceAll("_", " ");
+				module.put("wf_module_label", workflowName);
 				module.put("wf_module_start", rs.getTimestamp("START_"));
 				module.put("wf_module_end", rs.getTimestamp("END_"));
 				module.put("wf_module_duration", rs.getInt("DURATION_"));
@@ -209,12 +218,12 @@ public class BatchInstanceStats {
 			@ManagedOperationParameter(name = "to", description = "To Date") })
 	public String getBatchClassRepartition(String identifier, String from, String to) {
 
-		JSONArray captured = new JSONArray();
+		List<Long> durations = new ArrayList<Long>();
 		try {
 			Connection c = DBUtils.getDBConnection();
 
 			// get the batch instance details
-			String sql = "SELECT @low := TRUNCATE(TIME_TO_SEC(TIMEDIFF(bi.`last_modified`,bi.`creation_date`))/60, 0) * 60 as Low,   TRUNCATE(@low + 60, 0) as High,   COUNT(*) AS Count,   CONCAT( FLOOR((TRUNCATE(@low + 60, 0) / 60)), ' minute(s)') AS Label FROM batch_instance AS bi LEFT JOIN `batch_class` bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
+			String sql = "SELECT bi.last_modified as start,bi.creation_date as finish FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
 
 			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
 				sql += " AND bi.creation_date >= '" + from + "'";
@@ -222,19 +231,16 @@ public class BatchInstanceStats {
 			if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
 				sql += " AND bi.creation_date <= '" + to + "'";
 
-			sql += " GROUP BY Low;";
-
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
-				JSONObject m = new JSONObject();
-				m.put("label", rs.getString("Label"));
-				m.put("count", rs.getInt("Count"));
-				m.put("start", rs.getInt("Low"));
-				captured.put(m);
+				// Capture the duration in second
+				durations.add((rs.getTimestamp("start").getTime() - rs.getTimestamp("finish").getTime()) / 1000);
 			}
+
+			Collections.sort(durations);
 
 			// Close the query
 			rs.close();
@@ -245,42 +251,47 @@ public class BatchInstanceStats {
 			e.printStackTrace();
 		}
 
-		if (captured.length() > 0) {
+		if (durations.size() > 0) {
 			// Fill blank
 			int currentIndex = 0;
-			int currentStart = 0;
+			int currentStart = 60; // 1 minute
+			int currentNumber = 0;
 			boolean completed = false;
 
 			JSONArray obj = new JSONArray();
 			try {
 				while (!completed) {
-					if (currentStart < captured.getJSONObject(currentIndex).getInt("start")) {
-						// Create empty line
+					if (currentStart < durations.get(currentIndex)) {
+						// We close the slot, and we create a new value
 						JSONObject m = new JSONObject();
-						m.put("label", (((int) (currentStart / 60)) + 1) + " minute(s)");
-						m.put("count", 0);
+						m.put("label", (int) (currentStart / 60) + " minute(s)");
+						m.put("count", currentNumber);
 						obj.put(m);
 
-						currentStart += 60;
+						currentNumber = 0;
+						currentStart += 60; // + 1m
 					} else {
-
-						JSONObject m = captured.getJSONObject(currentIndex);
-						m.remove("start");
-						obj.put(m);
-
-						currentStart += 60;
+						currentNumber++;
 						currentIndex++;
 
-						completed = currentIndex == captured.length();
-
+						completed = currentIndex == durations.size();
 					}
+				}
+
+				// We check that all values are stored
+				if (currentNumber > 0) {
+					// Add the last slot
+					JSONObject m = new JSONObject();
+					m.put("label", (int) (currentStart / 60) + " minute(s)");
+					m.put("count", currentNumber);
+					obj.put(m);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			return obj.toString();
 		} else
-			return captured.toString();
+			return (new JSONArray()).toString();
 
 	}
 
@@ -288,13 +299,13 @@ public class BatchInstanceStats {
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
 			@ManagedOperationParameter(name = "to", description = "To Date") })
 	public String getBatchClassAccumulation(String identifier, String from, String to) {
-		JSONArray captured = new JSONArray();
 		int total = 0;
+		List<Long> durations = new ArrayList<Long>();
 		try {
 			Connection c = DBUtils.getDBConnection();
 
 			// get the batch instance details
-			String sql = "SELECT @low := TRUNCATE(TIME_TO_SEC(TIMEDIFF(bi.`last_modified`,bi.`creation_date`))/60, 0) * 60 as Low,   TRUNCATE(@low + 60, 0) as High,   COUNT(*) AS Count,   CONCAT( FLOOR((TRUNCATE(@low + 60, 0) / 60)), ' minute(s)') AS Label FROM batch_instance AS bi LEFT JOIN `batch_class` bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
+			String sql = "SELECT bi.last_modified as start,bi.creation_date as finish FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
 
 			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
 				sql += " AND bi.creation_date >= '" + from + "'";
@@ -302,21 +313,17 @@ public class BatchInstanceStats {
 			if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
 				sql += " AND bi.creation_date <= '" + to + "'";
 
-			sql += " GROUP BY Low;";
-
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
-				int count = rs.getInt("Count");
-				JSONObject m = new JSONObject();
-				m.put("label", rs.getString("Label"));
-				m.put("count", rs.getInt("Count"));
-				m.put("start", rs.getInt("Low"));
-				total += count;
-				captured.put(m);
+				// Capture the duration in second
+				durations.add((rs.getTimestamp("start").getTime() - rs.getTimestamp("finish").getTime()) / 1000);
+				total++;
 			}
+
+			Collections.sort(durations);
 
 			// Close the query
 			rs.close();
@@ -327,47 +334,46 @@ public class BatchInstanceStats {
 			e.printStackTrace();
 		}
 
-		if (captured.length() > 0) {
+		if (durations.size() > 0) {
 			// Fill blank
 			int currentIndex = 0;
-			int currentStart = 0;
-			int currentNb = 0;
+			int currentStart = 60; // 1 minute
+			int currentNumber = 0;
 			boolean completed = false;
 
 			JSONArray obj = new JSONArray();
 			try {
 				while (!completed) {
-					if (currentStart < captured.getJSONObject(currentIndex).getInt("start")) {
-						// Create empty line
+					if (currentStart < durations.get(currentIndex)) {
+						// We close the slot, and we create a new value
 						JSONObject m = new JSONObject();
-						m.put("label", (((int) (currentStart / 60)) + 1) + " minute(s)");
-						m.put("percentage", (int) (100.0 * currentNb / total));
+						m.put("label", (int) (currentStart / 60) + " minute(s)");
+						m.put("percentage", (int) (100 * currentNumber / total));
 						obj.put(m);
 
-						currentStart += 60;
+						currentStart += 60; // + 1m
 					} else {
-
-						JSONObject m = captured.getJSONObject(currentIndex);
-						int count = m.getInt("count");
-						m.remove("start");
-						m.remove("count");
-						currentNb += count;
-						m.put("percentage", (int) (100.0 * currentNb / total));
-						obj.put(m);
-
-						currentStart += 60;
+						currentNumber++;
 						currentIndex++;
 
-						completed = currentIndex == captured.length();
-
+						completed = currentIndex == durations.size();
 					}
+				}
+
+				// We check that all values are stored
+				if (currentNumber <= total) {
+					// Add the last slot
+					JSONObject m = new JSONObject();
+					m.put("label", (int) (currentStart / 60) + " minute(s)");
+					m.put("percentage", 100);
+					obj.put(m);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			return obj.toString();
 		} else
-			return captured.toString();
+			return (new JSONArray()).toString();
 
 	}
 
@@ -380,7 +386,7 @@ public class BatchInstanceStats {
 			Connection c = DBUtils.getDBConnection();
 
 			// get the batch instance details
-			String sql = "SELECT bi.creation_date as creation_date, bi.last_modified as last_modified, batch_name, bi.identifier as identifier FROM batch_instance AS bi LEFT JOIN `batch_class` bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
+			String sql = "SELECT bi.creation_date as creation_date, bi.last_modified as last_modified, batch_name, bi.identifier as identifier FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
 
 			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
 				sql += " AND bi.creation_date >= '" + from + "'";

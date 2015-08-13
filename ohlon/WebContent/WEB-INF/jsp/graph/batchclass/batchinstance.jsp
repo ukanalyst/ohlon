@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="../assets/css/batchinstances.css">
 <link rel="stylesheet" href="../assets/css/keen-dashboards.css">
 <script type="text/javascript" src="../assets/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="../assets/lib/moment.js"></script>
 <script type="text/javascript" src="../assets/js/graph/batchclass/batchinstance.js"></script>
 </head>
 <body>

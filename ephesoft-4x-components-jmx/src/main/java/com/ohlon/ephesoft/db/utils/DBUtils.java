@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 public class DBUtils {
 
 	private static final Logger log = Logger.getLogger(DBUtils.class.getName());
+	private static boolean IS_MSSQL;
 
 	public static Connection getDBConnection() {
 		Connection c = null;
@@ -24,6 +25,9 @@ public class DBUtils {
 			File propFile = new File(home, "WEB-INF/classes/META-INF/dcma-data-access/dcma-db.properties");
 			InputStream is = new FileInputStream(propFile);
 			p.load(is);
+			
+			IS_MSSQL = "org.hibernate.dialect.SQLServerDialect".equalsIgnoreCase((String) p.get("dataSource.dialect"));
+			log.info("Is MSSQL: " + IS_MSSQL);
 
 			// get the connection information from the properties file
 			String username = (String) p.get("dataSource.username");
@@ -85,5 +89,9 @@ public class DBUtils {
 		}
 		
 		return c;
+	}
+	
+	public static boolean isMSSQL() {
+		return IS_MSSQL;
 	}
 }

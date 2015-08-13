@@ -36,12 +36,15 @@ function createBatchInstance(identifier) {
 		headers : headers,
 		success : function(response) {
 			var bi = JSON.parse(response.value);
-			var html = generateHtml(bi);
-			$("#container").prepend(html);
-			var refresh = setInterval(function() {
-				updateBatchInstance(identifier)
-			}, updateInterval);
-			refreshFunctions[identifier] = refresh;
+			// check if the batch identifier is already listed
+			if ($("div#" + identifier + ".batchinstance").length == 0) {
+				var html = generateHtml(bi);
+				$("#container").prepend(html);
+				var refresh = setInterval(function() {
+					updateBatchInstance(identifier)
+				}, updateInterval);
+				refreshFunctions[identifier] = refresh;
+			}
 		}
 	});
 }

@@ -54,8 +54,8 @@ window.onload = function() {
 
 					// Search the workflow first
 					for (var i = 0; i < d.length; i++) {
-						var c_start = new Date(d[i].START_TIME);
-						var c_end = new Date(d[i].END_TIME);
+						var c_start = moment(d[i].START_TIME).toDate();
+						var c_end = moment(d[i].END_TIME).toDate();
 
 						if (d[i].WORKFLOW_TYPE == "WORKFLOW") {
 
@@ -96,8 +96,8 @@ window.onload = function() {
 					// Then populate
 					for (var i = 0; i < d.length; i++) {
 						if (d[i].WORKFLOW_TYPE == "MODULE") {
-							var startModule = new Date(d[i].START_TIME);
-							var endModule = new Date(d[i].END_TIME);
+							var startModule = moment(d[i].START_TIME).toDate();
+							var endModule =moment(d[i].END_TIME).toDate();
 
 							// Check if the time is correct
 							if (startModule < start)
@@ -120,8 +120,8 @@ window.onload = function() {
 
 						} else if (d[i].WORKFLOW_TYPE == "PLUGIN") {
 
-							var startPlugin = new Date(d[i].START_TIME);
-							var endPlugin = new Date(d[i].END_TIME);
+							var startPlugin = moment(d[i].START_TIME).toDate();
+							var endPlugin = moment(d[i].END_TIME).toDate();
 
 							if (current_time_plugin == null)
 								current_time_plugin = start;

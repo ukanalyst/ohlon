@@ -101,7 +101,12 @@ public class ReportingStats {
 
 			// Query the main database to find batch instances
 
-			String sql = "SELECT bi.identifier AS identifier, SUBSTRING_INDEX(BUSINESS_KEY_, '.', -1) AS WORKFLOW_NAME, DURATION_ AS DURATION FROM batch_instance bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id LEFT JOIN ACT_HI_PROCINST proc ON proc.NAME_ = bi.identifier WHERE bc.identifier = ?";
+			String sql = "SELECT bi.identifier AS identifier, BUSINESS_KEY_ AS WORKFLOW_NAME, DURATION_ AS DURATION FROM batch_instance bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id LEFT JOIN ACT_HI_PROCINST proc ON proc.NAME_ = bi.identifier WHERE bc.identifier = ?";
+			
+			// Specific case for SQLServer
+			if (DBUtils.isMSSQL()) {
+				sql = "SELECT bi.identifier AS identifier, BUSINESS_KEY_ AS WORKFLOW_NAME, DURATION_ AS DURATION FROM batch_instance bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id LEFT JOIN ACT_HI_PROCINST procinst ON (procinst.BUSINESS_KEY_ like bi.identifier + '.%' OR procinst.BUSINESS_KEY_ = bi.identifier) WHERE bc.identifier = ?";
+			}
 
 			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
 				sql += " AND bi.creation_date >= '" + from + "'";
@@ -120,7 +125,8 @@ public class ReportingStats {
 			Map<String, Map<String, Integer>> stepDuration = new HashMap<String, Map<String, Integer>>();
 
 			while (rs.next()) {
-				String wfName = rs.getString("WORKFLOW_NAME");
+				String batchinstance_identifier = rs.getString("identifier");
+				String wfName = rs.getString("WORKFLOW_NAME").replaceAll("^" + batchinstance_identifier + "\\.", "");
 				String wfType = "WORKFLOW";
 
 				if (wfName.endsWith("-m"))
@@ -128,7 +134,7 @@ public class ReportingStats {
 				else if (wfName.endsWith("-p"))
 					wfType = "PLUGIN";
 
-				listOfIdentifiers.add(rs.getString("identifier"));
+				listOfIdentifiers.add(batchinstance_identifier);
 
 				// If it's a plugin or a module
 				String moduleName = wfName.substring(0, wfName.length() - 2);
@@ -267,8 +273,8 @@ public class ReportingStats {
 
 			// Query the main database to find batch instances
 
-			String sql = "SELECT DURATION_ AS DURATION FROM batch_instance bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id LEFT JOIN ACT_HI_PROCINST proc ON proc.NAME_ = bi.identifier WHERE bc.identifier = ?";
-			sql += " AND BUSINESS_KEY_ LIKE '%" + businessKey + "'";
+			String sql = "SELECT DURATION_ AS DURATION FROM batch_instance bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id LEFT JOIN ACT_HI_PROCINST procinst ON procinst.NAME_ = bi.identifier WHERE bc.identifier = ?";
+			sql += " AND BUSINESS_KEY_ LIKE '%" + businessKey + "%'";
 
 			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
 				sql += " AND bi.creation_date >= '" + from + "'";
@@ -356,7 +362,7 @@ public class ReportingStats {
 
 			// Query the main database to find batch instances
 
-			String sql = "SELECT DURATION_ AS DURATION FROM batch_instance bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id LEFT JOIN ACT_HI_PROCINST proc ON proc.NAME_ = bi.identifier WHERE bc.identifier = ? ";
+			String sql = "SELECT DURATION_ AS DURATION FROM batch_instance bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id LEFT JOIN ACT_HI_PROCINST procinst ON procinst.NAME_ = bi.identifier WHERE bc.identifier = ? ";
 			sql += " AND BUSINESS_KEY_ LIKE '%" + businessKey + "'";
 
 			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
@@ -431,7 +437,7 @@ public class ReportingStats {
 			Connection c = DBUtils.getDBConnection();
 
 			// get the batch instance details
-			String sql = "SELECT SUBSTRING_INDEX(BUSINESS_KEY_, '.', -1) AS WORKFLOW_NAME, DURATION_ AS DURATION, START_TIME_ AS START_TIME, END_TIME_ AS END_TIME FROM ACT_HI_PROCINST WHERE NAME_ = ? ORDER BY START_TIME";
+			String sql = "SELECT BUSINESS_KEY_ AS WORKFLOW_NAME, DURATION_ AS DURATION, START_TIME_ AS START_TIME, END_TIME_ AS END_TIME FROM ACT_HI_PROCINST WHERE NAME_ = ? ORDER BY START_TIME";
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
@@ -439,7 +445,7 @@ public class ReportingStats {
 
 			// Query the report database to get the number of pages and
 			// documents
-			sql = "SELECT COUNT(DISTINCT doc_identifier) AS NBOFDOCS, COUNT(DISTINCT page_identifier) AS NBOFPAGES, batch_instance_id, batch_class_id FROM finished_batch_xml_data WHERE batch_instance_id = ?";
+			sql = "SELECT COUNT(DISTINCT doc_identifier) AS NBOFDOCS, COUNT(DISTINCT page_identifier) AS NBOFPAGES, batch_instance_id, batch_class_id FROM finished_batch_xml_data WHERE batch_instance_id = ? GROUP BY batch_instance_id, batch_class_id";
 			Connection c2 = DBUtils.getReportDBConnection();
 			PreparedStatement statement2 = c2.prepareStatement(sql);
 			statement2.setString(1, identifier);
@@ -454,7 +460,7 @@ public class ReportingStats {
 			}
 
 			while (rs.next()) {
-				String wfName = rs.getString("WORKFLOW_NAME");
+				String wfName = rs.getString("WORKFLOW_NAME").replaceAll("^" + identifier + "\\.", "");
 				String wfType = "WORKFLOW";
 				if (wfName.endsWith("-m"))
 					wfType = "MODULE";
