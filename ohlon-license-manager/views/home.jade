@@ -1,0 +1,31 @@
+extends layout
+
+block content
+	h3. Hello #{user.firstName} #{user.lastName},
+	a(href='/signout') Sign Out
+	div.container
+		div.row
+			div.col-md-3
+				h4. Accounts
+				a#listOrphans(href='#') List orphan servers
+				br
+				br
+				each account in accounts
+					div.account(accountId="#{account._id}")
+						div.name
+							a(href="#", class="name"). #{account.name}
+						div.address
+							| #{account.address}
+							br
+							| #{account.city}, #{account.zip}
+							br
+							| #{account.country}
+						div.email
+							a(href='mailto:' + account.email). #{account.email}
+
+			div.col-md-9
+				h4. Servers
+				br
+				br
+				div#servers			
+		
