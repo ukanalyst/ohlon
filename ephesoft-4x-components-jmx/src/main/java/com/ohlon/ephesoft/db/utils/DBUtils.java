@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 public class DBUtils {
 
@@ -25,7 +25,7 @@ public class DBUtils {
 			File propFile = new File(home, "WEB-INF/classes/META-INF/dcma-data-access/dcma-db.properties");
 			InputStream is = new FileInputStream(propFile);
 			p.load(is);
-			
+
 			IS_MSSQL = "org.hibernate.dialect.SQLServerDialect".equalsIgnoreCase((String) p.get("dataSource.dialect"));
 			log.info("Is MSSQL: " + IS_MSSQL);
 
@@ -46,17 +46,19 @@ public class DBUtils {
 			// get a connection to the database
 			Class.forName(driver).newInstance();
 			c = DriverManager.getConnection(url, username, password);
+
+			log.debug("URL: " + c.getMetaData().getURL());
+
 		} catch (Exception e) {
-			System.err.println(e);
-			log.log(Level.SEVERE, e.getMessage());
+			log.error("An error occured", e);
 		}
 
 		return c;
 	}
-	
+
 	public static Connection getReportDBConnection() {
 		Connection c = null;
-		
+
 		try {
 			// get the database connection properties from the ephesoft
 			// configuration
@@ -65,7 +67,7 @@ public class DBUtils {
 			File propFile = new File(home, "WEB-INF/classes/META-INF/dcma-reporting/etl-variables.properties");
 			InputStream is = new FileInputStream(propFile);
 			p.load(is);
-			
+
 			// get the connection information from the properties file
 			String hostname = (String) p.get("reporting.hostname");
 			String port = (String) p.get("reporting.port");
@@ -74,23 +76,25 @@ public class DBUtils {
 			String password = (String) p.get("reporting.password");
 			String driver = (String) p.get("reporting.driverClassName");
 			String url = (String) p.get("reporting.url");
-			
+
 			// fix the URL by substituting in the parameters
 			url = url.replace("$dcmareport{reporting.hostname}", hostname);
 			url = url.replace("$dcmareport{reporting.port}", port);
 			url = url.replace("$dcmareport{reporting.dbname}", dbname);
-			
+
 			// get a connection to the database
 			Class.forName(driver).newInstance();
 			c = DriverManager.getConnection(url, username, password);
+
+			log.debug("URL: " + c.getMetaData().getURL());
+
 		} catch (Exception e) {
-			System.err.println(e);
-			log.log(Level.SEVERE, e.getMessage());
+			log.error(e.getMessage());
 		}
-		
+
 		return c;
 	}
-	
+
 	public static boolean isMSSQL() {
 		return IS_MSSQL;
 	}

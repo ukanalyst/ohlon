@@ -77,7 +77,7 @@ public class ServerServiceImpl implements ServerService {
 			}
 
 		} catch (Exception e) {
-			log.error(e);
+			log.error("An error occured", e);
 		}
 	}
 }

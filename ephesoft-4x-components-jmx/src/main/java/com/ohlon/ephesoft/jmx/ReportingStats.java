@@ -9,9 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +25,15 @@ import com.ephesoft.dcma.da.service.PluginService;
 import com.ephesoft.dcma.report.scheduler.ReportScheduler;
 import com.ohlon.ephesoft.db.utils.DBUtils;
 import com.ohlon.ephesoft.db.utils.ListUtils;
+import com.ohlon.ephesoft.service.LicenseService;
 
 @Component
 @ManagedResource(objectName = "ephesoft:type=reporting-stats", description = "Reporting Statistics about Ephesoft")
 public class ReportingStats {
 
 	private static final Logger log = Logger.getLogger(ReportingStats.class.getName());
+
+	private LicenseService licenseService;
 
 	/**
 	 * Initializing etlScheduler {@link ReportScheduler}.
@@ -48,20 +50,34 @@ public class ReportingStats {
 
 	@ManagedOperation(description = "Refresh report database")
 	public String refreshReportDatabase() {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
 		try {
+			log.debug("Start job to refresh database");
 			etlScheduler.setReportVariables();
 			etlScheduler.executeStandardEtl();
 			etlScheduler.executeAdvancedEtl();
 			etlScheduler.executeDashboardEtl();
+			log.debug("End of the job");
 		} catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage());
-			System.err.println(e);
+			log.error(e.getMessage());
 		}
 		return getLatestReportSyncDate();
 	}
 
 	@ManagedOperation(description = "Get latest database sync")
 	public String getLatestReportSyncDate() {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get lastest database sync");
 
 		String lastSync = "";
 
@@ -72,6 +88,9 @@ public class ReportingStats {
 			String sql = "SELECT last_execution_at FROM last_execution WHERE job='STANDARD';";
 
 			PreparedStatement statement = c.prepareStatement(sql);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			if (rs.next())
@@ -83,9 +102,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage());
-			System.err.println(e);
+			log.error(e.getMessage());
 		}
+
+		log.debug(lastSync);
 
 		return lastSync;
 	}
@@ -95,14 +115,20 @@ public class ReportingStats {
 			@ManagedOperationParameter(name = "to", description = "To Date") })
 	public String getBatchClassExecutionDetails(String identifier, String from, String to) {
 
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get batch execution details: identifier=" + identifier + "; from=" + from + "; to=" + to);
+
 		JSONArray captured = new JSONArray();
 		try {
 			Connection c = DBUtils.getDBConnection();
 
 			// Query the main database to find batch instances
-
 			String sql = "SELECT bi.identifier AS identifier, BUSINESS_KEY_ AS WORKFLOW_NAME, DURATION_ AS DURATION FROM batch_instance bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id LEFT JOIN ACT_HI_PROCINST proc ON proc.NAME_ = bi.identifier WHERE bc.identifier = ?";
-			
+
 			// Specific case for SQLServer
 			if (DBUtils.isMSSQL()) {
 				sql = "SELECT bi.identifier AS identifier, BUSINESS_KEY_ AS WORKFLOW_NAME, DURATION_ AS DURATION FROM batch_instance bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id LEFT JOIN ACT_HI_PROCINST procinst ON (procinst.BUSINESS_KEY_ like bi.identifier + '.%' OR procinst.BUSINESS_KEY_ = bi.identifier) WHERE bc.identifier = ?";
@@ -118,6 +144,9 @@ public class ReportingStats {
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			Map<String, Map<String, Object>> data = new HashMap<String, Map<String, Object>>();
@@ -249,8 +278,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Result: " + captured);
 
 		return captured.toString();
 	}
@@ -260,6 +291,13 @@ public class ReportingStats {
 			@ManagedOperationParameter(name = "name", description = "Artifact name."), @ManagedOperationParameter(name = "from", description = "From Date"),
 			@ManagedOperationParameter(name = "to", description = "To Date") })
 	public String getArtifactRepartitionDetails(String identifier, String type, String name, String from, String to) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get artifact repartition details: identifier=" + identifier + "; type=" + type + "; name=" + name + "; from=" + from + "; to=" + to);
 
 		JSONArray captured = new JSONArray();
 		try {
@@ -286,6 +324,9 @@ public class ReportingStats {
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -298,8 +339,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Captured: " + captured);
 
 		if (captured.length() > 0) {
 			// Fill blank
@@ -337,8 +380,11 @@ public class ReportingStats {
 					obj.put(m);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("An error occured", e);
 			}
+
+			log.debug("Result: " + obj);
+
 			return obj.toString();
 		} else
 			return captured.toString();
@@ -349,6 +395,13 @@ public class ReportingStats {
 			@ManagedOperationParameter(name = "name", description = "Artifact name."), @ManagedOperationParameter(name = "from", description = "From Date"),
 			@ManagedOperationParameter(name = "to", description = "To Date") })
 	public String getArtifactAccumulationDetails(String identifier, String type, String name, String from, String to) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get artifact accumulation details: identifier=" + identifier + "; type=" + type + "; name=" + name + "; from=" + from + "; to=" + to);
 
 		JSONArray captured = new JSONArray();
 		try {
@@ -375,6 +428,9 @@ public class ReportingStats {
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -387,8 +443,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Captured: " + captured);
 
 		if (captured.length() > 0) {
 			// Fill blank
@@ -422,8 +480,11 @@ public class ReportingStats {
 				m.put("percentage", (int) (100.0 * currentNumber / captured.length()));
 				obj.put(m);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("An error occured", e);
 			}
+
+			log.debug("Result: " + obj);
+
 			return obj.toString();
 		} else
 			return captured.toString();
@@ -432,8 +493,17 @@ public class ReportingStats {
 	@ManagedOperation(description = "Get batch instance execution details")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Instance Identifier.") })
 	public String getBatchInstanceExecutionDetails(String identifier) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
 		JSONArray captured = new JSONArray();
 		try {
+
+			log.debug("Get batch instance execution details: identifier=" + identifier);
+
 			Connection c = DBUtils.getDBConnection();
 
 			// get the batch instance details
@@ -441,6 +511,9 @@ public class ReportingStats {
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			// Query the report database to get the number of pages and
@@ -485,8 +558,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Result: " + captured);
 
 		return captured.toString();
 	}
@@ -495,6 +570,13 @@ public class ReportingStats {
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
 			@ManagedOperationParameter(name = "to", description = "To Date"), @ManagedOperationParameter(name = "user", description = "User") })
 	public String getManualStepsExecutionDetails(String identifier, String from, String to, String user) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Manual Steps Execution Details: identifier=" + identifier + "; from=" + from + "; to=" + to + "; user=" + user);
 
 		JSONArray captured = new JSONArray();
 		try {
@@ -514,6 +596,9 @@ public class ReportingStats {
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			Map<String, Map<String, Object>> data = new HashMap<String, Map<String, Object>>();
@@ -626,8 +711,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Result: " + captured);
 
 		return captured.toString();
 	}
@@ -637,6 +724,13 @@ public class ReportingStats {
 			@ManagedOperationParameter(name = "from", description = "From Date"), @ManagedOperationParameter(name = "to", description = "To Date"),
 			@ManagedOperationParameter(name = "user", description = "User name") })
 	public String getManualStepsRepartitionDetails(String module, String identifier, String from, String to, String user) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Manual Steps Repartition Details: module=" + module + "; identifier=" + identifier + "; from=" + from + "; to=" + to + "; user=" + user);
 
 		if (module.startsWith("READY_FOR_"))
 			module = module.replaceAll("READY_FOR_", "");
@@ -661,6 +755,9 @@ public class ReportingStats {
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
 			statement.setString(2, module);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -673,8 +770,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Captured: " + captured);
 
 		if (captured.length() > 0) {
 			// Fill blank
@@ -712,8 +811,11 @@ public class ReportingStats {
 					obj.put(m);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("An error occured", e);
 			}
+
+			log.debug("Result: " + obj);
+
 			return obj.toString();
 		} else
 			return captured.toString();
@@ -724,6 +826,13 @@ public class ReportingStats {
 			@ManagedOperationParameter(name = "from", description = "From Date"), @ManagedOperationParameter(name = "to", description = "To Date"),
 			@ManagedOperationParameter(name = "user", description = "User name") })
 	public String getManualStepsAccumulationDetails(String module, String identifier, String from, String to, String user) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Manual Steps Accumulation Details: module=" + module + "; identifier=" + identifier + "; from=" + from + "; to=" + to + "; user=" + user);
 
 		if (module.startsWith("READY_FOR_"))
 			module = module.replaceAll("READY_FOR_", "");
@@ -748,6 +857,9 @@ public class ReportingStats {
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
 			statement.setString(2, module);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -760,8 +872,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Captured: " + captured);
 
 		if (captured.length() > 0) {
 			// Fill blank
@@ -795,10 +909,17 @@ public class ReportingStats {
 				m.put("percentage", (int) (100.0 * currentNumber / captured.length()));
 				obj.put(m);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("An error occured", e);
 			}
+
+			log.debug("Result: " + obj);
+
 			return obj.toString();
 		} else
 			return captured.toString();
+	}
+
+	public void setLicenseService(LicenseService licenseService) {
+		this.licenseService = licenseService;
 	}
 }

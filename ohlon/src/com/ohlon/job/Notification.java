@@ -136,7 +136,7 @@ public class Notification extends QuartzJobBean {
 				initialCheckDone = true;
 			}
 		} catch (Exception e) {
-			log.error(e);
+			log.error("An error occured", e);
 		}
 	}
 
@@ -212,7 +212,7 @@ public class Notification extends QuartzJobBean {
 				}
 			}
 		} catch (Exception e) {
-			log.error(e);
+			log.error("An error occured", e);
 			e.printStackTrace();
 		}
 	}
@@ -253,7 +253,7 @@ public class Notification extends QuartzJobBean {
 			log.debug(dataStr);
 
 		} catch (Exception e) {
-			log.error(e);
+			log.error("An error occured", e);
 			e.printStackTrace();
 		}
 	}
@@ -289,7 +289,7 @@ public class Notification extends QuartzJobBean {
 					Template freemarkerTemplate = freemarkerConfiguration.getTemplate(props.getProperty("notification.email." + status.replaceAll("_", "").toLowerCase() + ".template"));
 					content.append(FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerTemplate, templateVars));
 				} catch (Exception e) {
-					log.error(e);
+					log.error("An error occured", e);
 				}
 
 				helper.setFrom(props.getProperty("notification.email.from"));
@@ -303,8 +303,7 @@ public class Notification extends QuartzJobBean {
 				sender.send(message);
 			}
 		} catch (Exception e) {
-			log.error(e);
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
 
 	}
@@ -332,7 +331,7 @@ public class Notification extends QuartzJobBean {
 					Template freemarkerTemplate = freemarkerConfiguration.getTemplate(props.getProperty("notification.email.server.template"));
 					content.append(FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerTemplate, templateVars));
 				} catch (Exception e) {
-					log.error(e);
+					log.error("An error occured", e);
 				}
 
 				helper.setFrom(props.getProperty("notification.email.from"));
@@ -346,8 +345,7 @@ public class Notification extends QuartzJobBean {
 				sender.send(message);
 			}
 		} catch (Exception e) {
-			log.error(e);
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
 
 	}
@@ -392,8 +390,7 @@ public class Notification extends QuartzJobBean {
 				}
 			}
 		} catch (Exception e) {
-			log.error(e);
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
 	}
 

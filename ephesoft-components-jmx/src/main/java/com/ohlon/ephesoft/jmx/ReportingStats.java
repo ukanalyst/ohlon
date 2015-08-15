@@ -3,9 +3,8 @@ package com.ohlon.ephesoft.jmx;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +18,15 @@ import com.ephesoft.dcma.da.service.BatchInstanceService;
 import com.ephesoft.dcma.da.service.PluginService;
 import com.ephesoft.dcma.reporting.service.EphesoftReportingService;
 import com.ohlon.ephesoft.db.utils.DBUtils;
+import com.ohlon.ephesoft.service.LicenseService;
 
 @Component
 @ManagedResource(objectName = "ephesoft:type=reporting-stats", description = "Reporting Statistics about Ephesoft")
 public class ReportingStats {
 
 	private static final Logger log = Logger.getLogger(ReportingStats.class.getName());
+
+	private LicenseService licenseService;
 
 	/**
 	 * Initializing ephesoftReportingService {@link EphesoftReportingService}.
@@ -41,11 +43,18 @@ public class ReportingStats {
 
 	@ManagedOperation(description = "Refresh report database")
 	public String refreshReportDatabase() {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
 		try {
+			log.debug("Start job to refresh database");
 			ephesoftReportingService.performReportingAction();
+			log.debug("End of the job");
 		} catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage());
-			System.err.println(e);
+			log.error(e.getMessage());
 		}
 		return getLatestReportSyncDate();
 	}
@@ -53,15 +62,25 @@ public class ReportingStats {
 	@ManagedOperation(description = "Get latest database sync")
 	public String getLatestReportSyncDate() {
 
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get lastest database sync");
+
 		String lastSync = "";
 
 		try {
 			Connection c = DBUtils.getReportDBConnection();
 
 			// get the last update time
-			String sql = "SELECT LAST_UPDATE_TIME FROM  `last_update_time`";
+			String sql = "SELECT LAST_UPDATE_TIME FROM  last_update_time";
 
 			PreparedStatement statement = c.prepareStatement(sql);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			if (rs.next())
@@ -73,9 +92,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage());
-			System.err.println(e);
+			log.error(e.getMessage());
 		}
+
+		log.debug(lastSync);
 
 		return lastSync;
 	}
@@ -85,12 +105,19 @@ public class ReportingStats {
 			@ManagedOperationParameter(name = "to", description = "To Date") })
 	public String getBatchClassExecutionDetails(String identifier, String from, String to) {
 
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get batch execution details: identifier=" + identifier + "; from=" + from + "; to=" + to);
+
 		JSONArray captured = new JSONArray();
 		try {
 			Connection c = DBUtils.getReportDBConnection();
 
 			// get the batch instance details
-			String sql = "SELECT WORKFLOW_NAME, WORKFLOW_TYPE,  AVG(DURATION) AS AVGDURATION,  MIN(DURATION) AS MINDURATION,  MAX(DURATION) AS MAXDURATION,  AVG(1000 * TOTAL_NUMBER_DOCUMENTS / DURATION) AS AVGDOCPS,  MIN(1000 * TOTAL_NUMBER_DOCUMENTS / DURATION) AS MINDOCPS, MAX(1000 * TOTAL_NUMBER_DOCUMENTS / DURATION) AS MAXDOCPS,  AVG(1000 * TOTAL_NUMBER_PAGES / DURATION) AS AVGPAGEPS, MIN(1000 * TOTAL_NUMBER_PAGES / DURATION) AS MINPAGEPS, MAX(1000 * TOTAL_NUMBER_PAGES / DURATION) AS MAXPAGEPS, SUM(TOTAL_NUMBER_PAGES) AS NBOFPAGES, SUM(TOTAL_NUMBER_DOCUMENTS) AS NBOFDOCUMENTS, COUNT(DISTINCT PROCESS_KEY) AS NBOFBATCHINSTANCES FROM report_data WHERE BATCH_CLASS_ID = ?";
+			String sql = "SELECT WORKFLOW_NAME, WORKFLOW_TYPE,  AVG(DURATION) AS AVGDURATION,  MIN(DURATION) AS MINDURATION,  MAX(DURATION) AS MAXDURATION,  AVG(1000.0 * TOTAL_NUMBER_DOCUMENTS / DURATION) AS AVGDOCPS,  MIN(1000.0 * TOTAL_NUMBER_DOCUMENTS / DURATION) AS MINDOCPS, MAX(1000.0 * TOTAL_NUMBER_DOCUMENTS / DURATION) AS MAXDOCPS,  AVG(1000.0 * TOTAL_NUMBER_PAGES / DURATION) AS AVGPAGEPS, MIN(1000.0 * TOTAL_NUMBER_PAGES / DURATION) AS MINPAGEPS, MAX(1000.0 * TOTAL_NUMBER_PAGES / DURATION) AS MAXPAGEPS, SUM(TOTAL_NUMBER_PAGES) AS NBOFPAGES, SUM(TOTAL_NUMBER_DOCUMENTS) AS NBOFDOCUMENTS, COUNT(DISTINCT PROCESS_KEY) AS NBOFBATCHINSTANCES FROM report_data WHERE DURATION > 0 AND BATCH_CLASS_ID = ?";
 
 			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
 				sql += " AND START_TIME >= '" + from + "'";
@@ -98,10 +125,13 @@ public class ReportingStats {
 			if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
 				sql += " AND END_TIME <= '" + to + "'";
 
-			sql += " GROUP BY WORKFLOW_NAME ORDER BY WORKFLOW_TYPE, WORKFLOW_NAME";
+			sql += " GROUP BY WORKFLOW_TYPE, WORKFLOW_NAME ORDER BY WORKFLOW_TYPE, WORKFLOW_NAME";
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -129,8 +159,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Result: " + captured);
 
 		return captured.toString();
 	}
@@ -140,6 +172,13 @@ public class ReportingStats {
 			@ManagedOperationParameter(name = "name", description = "Artifact name."), @ManagedOperationParameter(name = "from", description = "From Date"),
 			@ManagedOperationParameter(name = "to", description = "To Date") })
 	public String getArtifactRepartitionDetails(String identifier, String type, String name, String from, String to) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get artifact repartition details: identifier=" + identifier + "; type=" + type + "; name=" + name + "; from=" + from + "; to=" + to);
 
 		JSONArray captured = new JSONArray();
 		try {
@@ -160,6 +199,9 @@ public class ReportingStats {
 			statement.setString(1, identifier);
 			statement.setString(2, type);
 			statement.setString(3, name);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -172,8 +214,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Captured: " + captured);
 
 		if (captured.length() > 0) {
 			// Fill blank
@@ -211,8 +255,11 @@ public class ReportingStats {
 					obj.put(m);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("An error occured", e);
 			}
+
+			log.debug("Result: " + obj);
+
 			return obj.toString();
 		} else
 			return captured.toString();
@@ -223,6 +270,13 @@ public class ReportingStats {
 			@ManagedOperationParameter(name = "name", description = "Artifact name."), @ManagedOperationParameter(name = "from", description = "From Date"),
 			@ManagedOperationParameter(name = "to", description = "To Date") })
 	public String getArtifactAccumulationDetails(String identifier, String type, String name, String from, String to) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get artifact accumulation details: identifier=" + identifier + "; type=" + type + "; name=" + name + "; from=" + from + "; to=" + to);
 
 		JSONArray captured = new JSONArray();
 		try {
@@ -243,6 +297,9 @@ public class ReportingStats {
 			statement.setString(1, identifier);
 			statement.setString(2, type);
 			statement.setString(3, name);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -255,8 +312,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Captured: " + captured);
 
 		if (captured.length() > 0) {
 			// Fill blank
@@ -290,8 +349,11 @@ public class ReportingStats {
 				m.put("percentage", (int) (100.0 * currentNumber / captured.length()));
 				obj.put(m);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("An error occured", e);
 			}
+
+			log.debug("Result: " + obj);
+
 			return obj.toString();
 		} else
 			return captured.toString();
@@ -300,15 +362,27 @@ public class ReportingStats {
 	@ManagedOperation(description = "Get batch instance execution details")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Instance Identifier.") })
 	public String getBatchInstanceExecutionDetails(String identifier) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
 		JSONArray captured = new JSONArray();
 		try {
+
+			log.debug("Get batch instance execution details: identifier=" + identifier);
+
 			Connection c = DBUtils.getReportDBConnection();
 
 			// get the batch instance details
-			String sql = "SELECT WORKFLOW_NAME, START_TIME, END_TIME, WORKFLOW_TYPE, DURATION, TOTAL_NUMBER_DOCUMENTS, TOTAL_NUMBER_PAGES, BATCH_CLASS_ID FROM report_data WHERE BATCH_INSTANCE_ID = ? ORDER BY START_TIME";
+			String sql = "SELECT WORKFLOW_NAME, START_TIME, END_TIME, WORKFLOW_TYPE, DURATION, TOTAL_NUMBER_DOCUMENTS, TOTAL_NUMBER_PAGES, BATCH_CLASS_ID FROM report_data WHERE BATCH_INSTANCE_ID = ? AND START_TIME <= END_TIME ORDER BY START_TIME";
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -330,23 +404,32 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Result: " + captured);
 
 		return captured.toString();
 	}
 
-	@ManagedOperation(description = "Get manual steps reportins")
+	@ManagedOperation(description = "Get manual steps reporting")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
 			@ManagedOperationParameter(name = "to", description = "To Date"), @ManagedOperationParameter(name = "user", description = "User") })
 	public String getManualStepsExecutionDetails(String identifier, String from, String to, String user) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Manual Steps Execution Details: identifier=" + identifier + "; from=" + from + "; to=" + to + "; user=" + user);
 
 		JSONArray captured = new JSONArray();
 		try {
 			Connection c = DBUtils.getReportDBConnection();
 
 			// get the batch instance details
-			String sql = "SELECT BATCH_STATUS,  AVG(m.DURATION) AS AVGDURATION,  MIN(m.DURATION) AS MINDURATION,  MAX(m.DURATION) AS MAXDURATION,  AVG(1000 * TOTAL_NUMBER_DOCUMENTS / m.DURATION) AS AVGDOCPS,  MIN(1000 * TOTAL_NUMBER_DOCUMENTS / m.DURATION) AS MINDOCPS, MAX(1000 * TOTAL_NUMBER_DOCUMENTS / m.DURATION) AS MAXDOCPS,  AVG(1000 * TOTAL_NUMBER_PAGES / m.DURATION) AS AVGPAGEPS, MIN(1000 * TOTAL_NUMBER_PAGES / m.DURATION) AS MINPAGEPS, MAX(1000 * TOTAL_NUMBER_PAGES / m.DURATION) AS MAXPAGEPS, SUM(TOTAL_NUMBER_PAGES) AS NBOFPAGES, SUM(TOTAL_NUMBER_DOCUMENTS) AS NBOFDOCUMENTS, COUNT(DISTINCT PROCESS_KEY) AS NBOFBATCHINSTANCES FROM manual_step_data_for_multiple_users m LEFT JOIN report_data r ON m.REPORT_DATA_ID = r.id WHERE BATCH_CLASS_ID = ?";
+			String sql = "SELECT BATCH_STATUS,  AVG(m.DURATION) AS AVGDURATION,  MIN(m.DURATION) AS MINDURATION,  MAX(m.DURATION) AS MAXDURATION,  AVG(1000.0 * TOTAL_NUMBER_DOCUMENTS / m.DURATION) AS AVGDOCPS,  MIN(1000.0 * TOTAL_NUMBER_DOCUMENTS / m.DURATION) AS MINDOCPS, MAX(1000.0 * TOTAL_NUMBER_DOCUMENTS / m.DURATION) AS MAXDOCPS,  AVG(1000.0 * TOTAL_NUMBER_PAGES / m.DURATION) AS AVGPAGEPS, MIN(1000.0 * TOTAL_NUMBER_PAGES / m.DURATION) AS MINPAGEPS, MAX(1000.0 * TOTAL_NUMBER_PAGES / m.DURATION) AS MAXPAGEPS, SUM(TOTAL_NUMBER_PAGES) AS NBOFPAGES, SUM(TOTAL_NUMBER_DOCUMENTS) AS NBOFDOCUMENTS, COUNT(DISTINCT PROCESS_KEY) AS NBOFBATCHINSTANCES FROM manual_step_data_for_multiple_users m LEFT JOIN report_data r ON m.REPORT_DATA_ID = r.id WHERE m.DURATION > 0 AND BATCH_CLASS_ID = ?";
 
 			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
 				sql += " AND m.START_TIME >= '" + from + "'";
@@ -361,6 +444,9 @@ public class ReportingStats {
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -387,8 +473,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Result: " + captured);
 
 		return captured.toString();
 	}
@@ -398,6 +486,13 @@ public class ReportingStats {
 			@ManagedOperationParameter(name = "from", description = "From Date"), @ManagedOperationParameter(name = "to", description = "To Date"),
 			@ManagedOperationParameter(name = "user", description = "User name") })
 	public String getManualStepsRepartitionDetails(String module, String identifier, String from, String to, String user) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Manual Steps Repartition Details: module=" + module + "; identifier=" + identifier + "; from=" + from + "; to=" + to + "; user=" + user);
 
 		JSONArray captured = new JSONArray();
 		try {
@@ -419,6 +514,9 @@ public class ReportingStats {
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
 			statement.setString(2, module);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -431,8 +529,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Captured: " + captured);
 
 		if (captured.length() > 0) {
 			// Fill blank
@@ -470,8 +570,11 @@ public class ReportingStats {
 					obj.put(m);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("An error occured", e);
 			}
+
+			log.debug("Result: " + obj);
+
 			return obj.toString();
 		} else
 			return captured.toString();
@@ -482,6 +585,13 @@ public class ReportingStats {
 			@ManagedOperationParameter(name = "from", description = "From Date"), @ManagedOperationParameter(name = "to", description = "To Date"),
 			@ManagedOperationParameter(name = "user", description = "User name") })
 	public String getManualStepsAccumulationDetails(String module, String identifier, String from, String to, String user) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Manual Steps Accumulation Details: module=" + module + "; identifier=" + identifier + "; from=" + from + "; to=" + to + "; user=" + user);
 
 		JSONArray captured = new JSONArray();
 		try {
@@ -503,6 +613,9 @@ public class ReportingStats {
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
 			statement.setString(2, module);
+
+			log.debug(statement.toString());
+
 			ResultSet rs = statement.executeQuery();
 
 			while (rs.next()) {
@@ -515,8 +628,10 @@ public class ReportingStats {
 			c.close();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
+
+		log.debug("Captured: " + captured);
 
 		if (captured.length() > 0) {
 			// Fill blank
@@ -550,10 +665,17 @@ public class ReportingStats {
 				m.put("percentage", (int) (100.0 * currentNumber / captured.length()));
 				obj.put(m);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("An error occured", e);
 			}
+
+			log.debug("Result: " + obj);
+
 			return obj.toString();
 		} else
 			return captured.toString();
+	}
+
+	public void setLicenseService(LicenseService licenseService) {
+		this.licenseService = licenseService;
 	}
 }

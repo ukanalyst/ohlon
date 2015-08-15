@@ -41,7 +41,10 @@ public class OhlonLogger extends AppenderSkeleton {
 			log.setHost(event.getProperty("host"));
 			log.setIp(event.getProperty("ip"));
 			log.setLoggerName(loggerName);
-			log.setMessage((String) event.getMessage());
+			if (event.getMessage() instanceof Exception)
+				log.setMessage(((Exception) event.getMessage()).getMessage());
+			else
+				log.setMessage((String) event.getMessage());
 			log.setThreadName(event.getThreadName());
 			log.setTimeStamp(event.getTimeStamp());
 			log.setLogLevel(event.getLevel().toString());

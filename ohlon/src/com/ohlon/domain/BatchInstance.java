@@ -20,7 +20,7 @@ public class BatchInstance {
 			if (data.has("status"))
 				this.status = data.getString("status");
 		} catch (JSONException e) {
-			log.error(e);
+			log.error("An error occured", e);
 		}
 	}
 

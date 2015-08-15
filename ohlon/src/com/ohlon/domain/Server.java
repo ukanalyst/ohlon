@@ -71,7 +71,7 @@ public class Server {
 			} else
 				this.pages = new String[0];
 		} catch (JSONException e) {
-			log.error(e);
+			log.error("An error occured", e);
 		}
 	}
 
@@ -115,7 +115,7 @@ public class Server {
 				}
 			}
 		} catch (Exception e) {
-			log.error(e);
+			log.error("An error occured", e);
 		}
 
 		return result;

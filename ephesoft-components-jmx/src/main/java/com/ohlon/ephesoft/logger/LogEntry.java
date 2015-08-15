@@ -3,11 +3,14 @@ package com.ohlon.ephesoft.logger;
 import java.util.Arrays;
 
 import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class LogEntry {
+
+	private static final Logger log = Logger.getLogger(LogEntry.class.getName());
 
 	private long id;
 	private String message;
@@ -123,7 +126,7 @@ public class LogEntry {
 			else
 				data.put("throwableStrRep", new JSONArray());
 		} catch (JSONException e) {
-			e.printStackTrace();
+			log.error("An error occured", e);
 		}
 		return data;
 	}

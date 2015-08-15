@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 public class DBUtils {
 
@@ -42,17 +42,19 @@ public class DBUtils {
 			// get a connection to the database
 			Class.forName(driver).newInstance();
 			c = DriverManager.getConnection(url, username, password);
+
+			log.debug("DB Connection: " + c.getMetaData().getURL());
+
 		} catch (Exception e) {
-			System.err.println(e);
-			log.log(Level.SEVERE, e.getMessage());
+			log.error("An error occured", e);
 		}
 
 		return c;
 	}
-	
+
 	public static Connection getReportDBConnection() {
 		Connection c = null;
-		
+
 		try {
 			// get the database connection properties from the ephesoft
 			// configuration
@@ -61,25 +63,27 @@ public class DBUtils {
 			File propFile = new File(home, "WEB-INF/classes/META-INF/dcma-performance-reporting/dcma-report-db.properties");
 			InputStream is = new FileInputStream(propFile);
 			p.load(is);
-			
+
 			// get the connection information from the properties file
 			String username = (String) p.get("hibernate.connection.username");
 			String password = (String) p.get("hibernate.connection.password");
 			String driver = (String) p.get("hibernate.connection.driver_class");
 			String url = (String) p.get("hibernate.connection.url");
-			
+
 			// fix the URL by substituting in the parameters
 			url = url.replace("${dataSource.username}", username);
 			url = url.replace("${dataSource.password}", password);
-			
+
 			// get a connection to the database
 			Class.forName(driver).newInstance();
 			c = DriverManager.getConnection(url, username, password);
+
+			log.debug("DB Connection: " + c.getMetaData().getURL());
+
 		} catch (Exception e) {
-			System.err.println(e);
-			log.log(Level.SEVERE, e.getMessage());
+			log.error("An error occured", e);
 		}
-		
+
 		return c;
 	}
 }

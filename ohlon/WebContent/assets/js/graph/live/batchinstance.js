@@ -210,6 +210,7 @@ function generateInnerHtml(bi) {
 		html += "</div>";
 	}
 	html += "</div>";
+	html += "	<div style='clear:both;'></div>";
 
 	return html;
 }

@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,14 +19,26 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 
 import com.ohlon.ephesoft.db.utils.DBUtils;
+import com.ohlon.ephesoft.service.LicenseService;
 
 @Component
 @ManagedResource(objectName = "ephesoft:type=server-status", description = "Server status reporting")
 public class ServerStatus {
 
+	private static final Logger log = Logger.getLogger(ServerStatus.class.getName());
+
+	private LicenseService licenseService;
+
 	@ManagedOperation(description = "Get server statistics over a month")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "month", description = "Month in format (MM-YYYY)") })
 	public String getMonthlyStatistics(String month, String server_names) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Monthly Statistics: month=" + month + "; server_names=" + server_names);
 
 		JSONArray data = new JSONArray();
 		String[] serverNames = new String[0];
@@ -86,6 +99,8 @@ public class ServerStatus {
 				for (int i = 0; i < serverNames.length; i++)
 					statement.setString(7 + i, serverNames[i]);
 			}
+
+			log.debug(statement.toString());
 
 			// Execute the query
 			ResultSet rs = statement.executeQuery();
@@ -157,7 +172,7 @@ public class ServerStatus {
 									slotStart.setTimeInMillis(rs.getTimestamp("start_hour").getTime());
 									slotEnd.setTimeInMillis(rs.getTimestamp("end_hour").getTime());
 								}
-								
+
 								isRunning = false;
 							}
 						}
@@ -206,12 +221,21 @@ public class ServerStatus {
 			e.printStackTrace();
 		}
 
+		log.debug("Result: " + data);
+
 		return data.toString();
 	}
 
 	@ManagedOperation(description = "Get server statistics over a day")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "day", description = "Day in format (DD-MM-YYYY)") })
 	public String getDailyStatistics(String day, String server_names) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Faily Statistics: day=" + day + "; server_names=" + server_names);
 
 		JSONArray data = new JSONArray();
 		String[] serverNames = new String[0];
@@ -270,6 +294,8 @@ public class ServerStatus {
 				for (int i = 0; i < serverNames.length; i++)
 					statement.setString(7 + i, serverNames[i]);
 			}
+
+			log.debug(statement.toString());
 
 			// Execute the query
 			ResultSet rs = statement.executeQuery();
@@ -399,6 +425,8 @@ public class ServerStatus {
 			e.printStackTrace();
 		}
 
+		log.debug("Result: " + data);
+
 		return data.toString();
 	}
 
@@ -418,6 +446,10 @@ public class ServerStatus {
 
 	private boolean isAfter(Calendar date1, Calendar date2) {
 		return date1.compareTo(date2) > 0;
+	}
+
+	public void setLicenseService(LicenseService licenseService) {
+		this.licenseService = licenseService;
 	}
 
 }

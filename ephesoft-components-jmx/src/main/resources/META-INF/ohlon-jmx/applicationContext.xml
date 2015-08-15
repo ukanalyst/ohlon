@@ -17,10 +17,24 @@
 		</property>
 	</bean>
 
-	<bean class="com.ohlon.ephesoft.jmx.BatchInstanceStats" id="jmxBatchInstanceStats" />
-	<bean class="com.ohlon.ephesoft.jmx.ReportingStats" id="jmxReportingStats" />
-	<bean class="com.ohlon.ephesoft.jmx.SystemFolderExporter" id="jmxSystemFolderExporter" />
-	<bean class="com.ohlon.ephesoft.jmx.ApplicationDetails" id="jmxApplicationDetails" />
-	<bean class="com.ohlon.ephesoft.jmx.LoggerExporter" id="jmxOhlonLogger" />
+	<bean class="com.ohlon.ephesoft.jmx.BatchInstanceStats" id="jmxBatchInstanceStats">
+		<property name="licenseService" ref="ohlon-license-service" />
+	</bean>
+	<bean class="com.ohlon.ephesoft.jmx.ReportingStats" id="jmxReportingStats">
+		<property name="licenseService" ref="ohlon-license-service" />
+	</bean>
+	<bean class="com.ohlon.ephesoft.jmx.SystemFolderExporter" id="jmxSystemFolderExporter">
+		<property name="licenseService" ref="ohlon-license-service" />
+	</bean>
+	<bean class="com.ohlon.ephesoft.jmx.ApplicationDetails" id="jmxApplicationDetails">
+		<property name="licenseService" ref="ohlon-license-service" />
+	</bean>
+	<bean class="com.ohlon.ephesoft.jmx.LoggerExporter" id="jmxOhlonLogger">
+		<property name="licenseService" ref="ohlon-license-service" />
+	</bean>
+
+	<!-- Service -->
+
+	<bean class="com.ohlon.ephesoft.service.LicenseServiceImpl" id="ohlon-license-service" init-method="init" />
 
 </beans>
