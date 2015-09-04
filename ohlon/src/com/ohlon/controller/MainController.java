@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -58,7 +59,8 @@ public class MainController extends AbstractController {
 	}
 
 	@RequestMapping("/batchinstance")
-	public ModelAndView batchinstance(@RequestParam(value = "id", required = false) String serverId, @RequestParam(value = "identifier", required = false) String identifier, @ModelAttribute("currentServer") Server currentServer) {
+	public ModelAndView batchinstance(@RequestParam(value = "id", required = false) String serverId, @RequestParam(value = "identifier", required = false) String identifier,
+			@ModelAttribute("currentServer") Server currentServer) {
 		currentServer.setId(serverId);
 		Map<String, Object> params = generateParams(currentServer.getId());
 		params.put("identifier", identifier);
@@ -87,6 +89,14 @@ public class MainController extends AbstractController {
 	public ModelAndView serverstatus(@RequestParam(value = "id", required = false) String serverId, @ModelAttribute("currentServer") Server currentServer) {
 		currentServer.setId(serverId);
 		return new ModelAndView("serverstatus", generateParams(currentServer.getId()));
+	}
+
+	@RequestMapping("/reportgenerator")
+	public ModelAndView reportgenerator(@RequestParam(value = "id", required = false) String serverId, @ModelAttribute("currentServer") Server currentServer) {
+		currentServer.setId(serverId);
+		Map<String, Object> params = generateParams(currentServer.getId());
+		params.put("reports", serverService.getAvailableReports().toString());
+		return new ModelAndView("reportgenerator", params);
 	}
 
 	/***
@@ -256,6 +266,11 @@ public class MainController extends AbstractController {
 		params.put("from", from);
 		params.put("to", to);
 		return new ModelAndView("/graph/user/validation-repartition", params);
+	}
+
+	@RequestMapping("/data/server")
+	public @ResponseBody com.ohlon.domain.Server getServer(@ModelAttribute("currentServer") Server currentServer) {
+		return serverService.getServer(currentServer.getId());
 	}
 
 }

@@ -57,6 +57,7 @@ div[role='navigation'] .container {
 				<li class="page-link" style="display:none;" data-pageid="batchinstance"><a href="./batchinstance">Batch Instance</a></li>
 				<li class="page-link" style="display:none;" data-pageid="user"><a href="./user">Manual Steps</a></li>
 				<li class="page-link" style="display:none;" data-pageid="serverstatus"><a href="./serverstatus">Server Status</a></li>
+				<li class="page-link" style="display:none;" data-pageid="reportgenerator"><a href="./reportgenerator">Report</a></li>
 
 			</ul>
 			<ul class="nav navbar-nav navbar-right">

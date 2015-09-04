@@ -29,6 +29,8 @@ public class ServerServiceImpl implements ServerService {
 	private ResourceLoader resourceLoader;
 
 	private static Map<String, Server> servers = new HashMap<String, Server>();
+	private Server firstLoadedServer;
+	private JSONObject reportsDefinition = null;
 
 	@Override
 	public List<Server> getAvailableServers() {
@@ -53,10 +55,20 @@ public class ServerServiceImpl implements ServerService {
 		if (ServerServiceImpl.servers.keySet().size() == 0)
 			populateServerList();
 
+		if (serverId == null)
+			return firstLoadedServer;
+
 		return servers.get(serverId);
 	}
 
-	public void populateServerList() {
+	@Override
+	public JSONObject getAvailableReports() {
+		if (reportsDefinition == null)
+			populateReportsDefinition();
+		return reportsDefinition;
+	}
+
+	private void populateServerList() {
 		Resource resource = resourceLoader.getResource("classpath:config/servers.json");
 		try {
 			String jsonData = IOUtils.toString(resource.getInputStream());
@@ -74,8 +86,21 @@ public class ServerServiceImpl implements ServerService {
 				log.debug("Load server: " + serverId);
 				Server server = new Server(serverId, servers.getJSONObject(serverId));
 				ServerServiceImpl.servers.put(serverId, server);
+
+				if (firstLoadedServer == null)
+					firstLoadedServer = server;
 			}
 
+		} catch (Exception e) {
+			log.error("An error occured", e);
+		}
+	}
+
+	private void populateReportsDefinition() {
+		Resource resource = resourceLoader.getResource("classpath:config/reports.json");
+		try {
+			String jsonData = IOUtils.toString(resource.getInputStream());
+			reportsDefinition = new JSONObject(jsonData);
 		} catch (Exception e) {
 			log.error("An error occured", e);
 		}

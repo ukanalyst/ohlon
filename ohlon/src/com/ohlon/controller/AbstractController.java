@@ -21,7 +21,7 @@ public abstract class AbstractController {
 	private JSONArray serverData = null;
 
 	@Autowired
-	private ServerService serverService;
+	protected ServerService serverService;
 
 	@Value("${batchinstance.hideDelay}")
 	private String batchinstanceHideDelay;
@@ -45,7 +45,7 @@ public abstract class AbstractController {
 			params.put("server_name", toString(currentServer.getServerNames()));
 			params.put("batchinstanceHideDelay", batchinstanceHideDelay);
 			params.put("servers", servers);
-			params.put("currentId", currentId);
+			params.put("currentId", currentServer.getId());
 			params.put("pages", toString(currentServer.getPages()));
 
 			if (currentServer.getUsername() != null) {

@@ -12,12 +12,14 @@
 		<intercept-url pattern="/user**" access="ROLE_USER" />
 		<intercept-url pattern="/error**" access="ROLE_USER" />
 		<intercept-url pattern="/serverstatus**" access="ROLE_USER" />
+		<intercept-url pattern="/reportgenerator**" access="ROLE_USER" />
 		<intercept-url pattern="/graph/**" access="ROLE_USER" />
+		<intercept-url pattern="/frameset" access="ROLE_USER" />
 
 		<form-login login-page="/login" default-target-url="/live" authentication-failure-url="/login?error" username-parameter="username" password-parameter="password" />
 		<logout logout-success-url="/login?logout" />
 		<!-- enable csrf protection -->
-		<csrf />
+		<!-- csrf / -->
 	</http>
 
 	<!-- BASIC AUTHENTICATION -->

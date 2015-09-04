@@ -1,0 +1,9 @@
+{
+    "reports": [
+        {
+            "label": "Batch Class analysis",
+            "description": "This report displays statistics about a specific batch class over a period of time. It displays the repartition of the completion time, and lists all batch instances",
+            "path": "report/source/batchclassanalysis.rptdesign"
+        }
+    ]
+}

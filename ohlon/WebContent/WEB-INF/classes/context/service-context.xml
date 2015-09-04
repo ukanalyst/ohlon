@@ -7,7 +7,7 @@ http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 
 	<context:annotation-config />
 
-	<bean id="ohlon.serverService" class="com.ohlon.service.impl.ServerServiceImpl">
-	</bean>
+	<bean id="ohlon.serverService" class="com.ohlon.service.impl.ServerServiceImpl" />
+	<bean id="ohlon.birtService" class="com.ohlon.service.impl.BirtServiceImpl" />
 
 </beans>
