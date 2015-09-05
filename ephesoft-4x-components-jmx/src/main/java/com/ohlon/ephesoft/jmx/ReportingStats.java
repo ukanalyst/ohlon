@@ -155,45 +155,47 @@ public class ReportingStats {
 
 			while (rs.next()) {
 				String batchinstance_identifier = rs.getString("identifier");
-				String wfName = rs.getString("WORKFLOW_NAME").replaceAll("^" + batchinstance_identifier + "\\.", "");
-				String wfType = "WORKFLOW";
+				if (rs.getString("WORKFLOW_NAME") != null) {
+					String wfName = rs.getString("WORKFLOW_NAME").replaceAll("^" + batchinstance_identifier + "\\.", "");
+					String wfType = "WORKFLOW";
 
-				if (wfName.endsWith("-m"))
-					wfType = "MODULE";
-				else if (wfName.endsWith("-p"))
-					wfType = "PLUGIN";
+					if (wfName.endsWith("-m"))
+						wfType = "MODULE";
+					else if (wfName.endsWith("-p"))
+						wfType = "PLUGIN";
 
-				listOfIdentifiers.add(batchinstance_identifier);
+					listOfIdentifiers.add(batchinstance_identifier);
 
-				// If it's a plugin or a module
-				String moduleName = wfName.substring(0, wfName.length() - 2);
-				if (wfType.equalsIgnoreCase("WORKFLOW"))
-					moduleName = "BATCHINSTANCE";
+					// If it's a plugin or a module
+					String moduleName = wfName.substring(0, wfName.length() - 2);
+					if (wfType.equalsIgnoreCase("WORKFLOW"))
+						moduleName = "BATCHINSTANCE";
 
-				// Record the duration
-				if (!stepDuration.containsKey(moduleName))
-					stepDuration.put(moduleName, new HashMap<String, Integer>());
-				stepDuration.get(moduleName).put(rs.getString("identifier"), rs.getInt("DURATION"));
+					// Record the duration
+					if (!stepDuration.containsKey(moduleName))
+						stepDuration.put(moduleName, new HashMap<String, Integer>());
+					stepDuration.get(moduleName).put(rs.getString("identifier"), rs.getInt("DURATION"));
 
-				if (data.containsKey(moduleName)) {
-					Map<String, Object> moduleData = data.get(moduleName);
-					moduleData.put("IDENTIFIER", moduleData.get("IDENTIFIER") + "/" + rs.getString("identifier"));
-					moduleData.put("COUNT", ((Integer) moduleData.get("COUNT")) + 1);
-					moduleData.put("TOTALDURATION", ((Integer) moduleData.get("TOTALDURATION")) + rs.getInt("DURATION"));
-					if (rs.getInt("DURATION") < (Integer) moduleData.get("MINDURATION"))
+					if (data.containsKey(moduleName)) {
+						Map<String, Object> moduleData = data.get(moduleName);
+						moduleData.put("IDENTIFIER", moduleData.get("IDENTIFIER") + "/" + rs.getString("identifier"));
+						moduleData.put("COUNT", ((Integer) moduleData.get("COUNT")) + 1);
+						moduleData.put("TOTALDURATION", ((Integer) moduleData.get("TOTALDURATION")) + rs.getInt("DURATION"));
+						if (rs.getInt("DURATION") < (Integer) moduleData.get("MINDURATION"))
+							moduleData.put("MINDURATION", rs.getInt("DURATION"));
+						if (rs.getInt("DURATION") > (Integer) moduleData.get("MAXDURATION"))
+							moduleData.put("MAXDURATION", rs.getInt("DURATION"));
+					} else {
+						Map<String, Object> moduleData = new HashMap<String, Object>();
+						moduleData.put("NAME", moduleName);
+						moduleData.put("TYPE", wfType);
+						moduleData.put("IDENTIFIER", rs.getString("identifier"));
+						moduleData.put("COUNT", 1);
+						moduleData.put("TOTALDURATION", rs.getInt("DURATION"));
 						moduleData.put("MINDURATION", rs.getInt("DURATION"));
-					if (rs.getInt("DURATION") > (Integer) moduleData.get("MAXDURATION"))
 						moduleData.put("MAXDURATION", rs.getInt("DURATION"));
-				} else {
-					Map<String, Object> moduleData = new HashMap<String, Object>();
-					moduleData.put("NAME", moduleName);
-					moduleData.put("TYPE", wfType);
-					moduleData.put("IDENTIFIER", rs.getString("identifier"));
-					moduleData.put("COUNT", 1);
-					moduleData.put("TOTALDURATION", rs.getInt("DURATION"));
-					moduleData.put("MINDURATION", rs.getInt("DURATION"));
-					moduleData.put("MAXDURATION", rs.getInt("DURATION"));
-					data.put(moduleName, moduleData);
+						data.put(moduleName, moduleData);
+					}
 				}
 			}
 
