@@ -235,7 +235,7 @@ public class BatchInstanceStats {
 			Connection c = DBUtils.getDBConnection();
 
 			// get the batch instance details
-			String sql = "SELECT START_TIME_ AS START_, END_TIME_ AS END_, DURATION_ FROM ACT_HI_PROCINST WHERE NAME_ = ? AND BUSINESS_KEY_ = ? ORDER BY START_TIME_;";
+			String sql = "SELECT START_TIME_ AS START_, END_TIME_ AS END_, DURATION_ FROM ACT_HI_PROCINST WHERE NAME_ = ? ORDER BY START_TIME_;";
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, batchInstance.getIdentifier());
 
