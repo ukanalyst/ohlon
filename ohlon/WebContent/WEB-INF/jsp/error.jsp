@@ -13,7 +13,10 @@
 	var JOLOKIA_AUTH = "${auth}";
 </script>
 
-<style>
+<style type="text/css">
+li.page-link[data-pageid='error'] {
+	background-color: #e7e7e7;
+}
 .modal-dialog {
 	width: 95%;
 	font-size: 11px;

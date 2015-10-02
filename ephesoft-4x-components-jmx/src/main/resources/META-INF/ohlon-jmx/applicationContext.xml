@@ -14,6 +14,7 @@
 				<entry key="ephesoft:type=application-details" value-ref="jmxApplicationDetails" />
 				<entry key="ephesoft:type=ohlon-logger" value-ref="jmxOhlonLogger" />
 				<entry key="ephesoft:type=server-status" value-ref="jmxServerStatus" />
+				<entry key="ephesoft:type=database-query-executer" value-ref="jmxDatabaseQueryExecuter" />
 			</map>
 		</property>
 	</bean>
@@ -36,9 +37,13 @@
 	<bean class="com.ohlon.ephesoft.jmx.ServerStatus" id="jmxServerStatus">
 		<property name="licenseService" ref="ohlon-license-service" />
 	</bean>
+	<bean class="com.ohlon.ephesoft.jmx.DatabaseQueryExecuter" id="jmxDatabaseQueryExecuter">
+		<property name="licenseService" ref="ohlon-license-service" />
+	</bean>
 
 	<!-- Service -->
 
 	<bean class="com.ohlon.ephesoft.service.LicenseServiceImpl" id="ohlon-license-service" init-method="init" />
+	<bean class="com.ohlon.ephesoft.db.export.OhlonDBExporter" id="ohlonDBExporter" init-method="init" />
 
 </beans>

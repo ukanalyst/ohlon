@@ -2,6 +2,7 @@ package com.ohlon.service.impl;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -25,6 +26,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.util.UriUtils;
 
 import com.ohlon.domain.Server;
 import com.ohlon.helper.BirtHelper;
@@ -129,6 +131,188 @@ public class BirtServiceImpl implements BirtService {
 
 		String url = jolokiaUrl + "/exec/ephesoft:type=batchinstance-stats/getBatchClassAccumulation(java.lang.String,java.lang.String,java.lang.String)/" + batchClass + "/" + _from + "/" + _to;
 		try {
+			String response = query(server, url);
+			JSONObject jsonResponse = new JSONObject(response);
+			if (jsonResponse.getInt("status") == 200)
+				return new JSONArray(jsonResponse.getString("value"));
+		} catch (Exception e) {
+			log.error("An error occured", e);
+		}
+
+		return new JSONArray();
+	}
+
+	@Override
+	public JSONArray getManualStepsExecutionDetails(String serverId, String batchClass, Date from, Date to, String user) throws ParseException {
+		log.debug("getManualStepsExecutionDetails: serverId=" + serverId + "; batchClass=" + batchClass + "; from=" + from + "; to=" + to + "; user=" + user);
+
+		// Get server
+		Server server = getServer(serverId);
+		String jolokiaUrl = server.getJolokiaUrl();
+		log.debug("Jolokia URL: " + jolokiaUrl);
+
+		String _from = from == null ? "na" : BirtHelper.toString(from);
+		String _to = to == null ? "na" : BirtHelper.toString(to);
+		String _user = user == null || user.length() == 0 ? "na" : user;
+
+		String url = jolokiaUrl + "/exec/ephesoft:type=reporting-stats/getManualStepsExecutionDetails(java.lang.String,java.lang.String,java.lang.String,java.lang.String)/" + batchClass + "/" + _from
+				+ "/" + _to + "/" + _user;
+		try {
+			String response = query(server, url);
+			JSONObject jsonResponse = new JSONObject(response);
+			if (jsonResponse.getInt("status") == 200)
+				return new JSONArray(jsonResponse.getString("value"));
+		} catch (Exception e) {
+			log.error("An error occured", e);
+		}
+
+		return new JSONArray();
+	}
+
+	@Override
+	public JSONArray getManualStepsRepartitionDetails(String serverId, String module, String batchClass, Date from, Date to, String user) throws ParseException {
+		log.debug("getManualStepsRepartitionDetails: serverId=" + serverId + "; module=" + module + "; batchClass=" + batchClass + "; from=" + from + "; to=" + to + "; user=" + user);
+
+		// Get server
+		Server server = getServer(serverId);
+		String jolokiaUrl = server.getJolokiaUrl();
+		log.debug("Jolokia URL: " + jolokiaUrl);
+
+		String _from = from == null ? "na" : BirtHelper.toString(from);
+		String _to = to == null ? "na" : BirtHelper.toString(to);
+		String _user = user == null || user.length() == 0 ? "na" : user;
+
+		String url = jolokiaUrl + "/exec/ephesoft:type=reporting-stats/getManualStepsRepartitionDetails(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)/" + module
+				+ "/" + batchClass + "/" + _from + "/" + _to + "/" + _user;
+		try {
+			String response = query(server, url);
+			JSONObject jsonResponse = new JSONObject(response);
+			if (jsonResponse.getInt("status") == 200)
+				return new JSONArray(jsonResponse.getString("value"));
+		} catch (Exception e) {
+			log.error("An error occured", e);
+		}
+
+		return new JSONArray();
+	}
+
+	@Override
+	public JSONArray getManualStepsAccumulationDetails(String serverId, String module, String batchClass, Date from, Date to, String user) throws ParseException {
+		log.debug("getManualStepsAccumulationDetails: serverId=" + serverId + "; module=" + module + "; batchClass=" + batchClass + "; from=" + from + "; to=" + to + "; user=" + user);
+
+		// Get server
+		Server server = getServer(serverId);
+		String jolokiaUrl = server.getJolokiaUrl();
+		log.debug("Jolokia URL: " + jolokiaUrl);
+
+		String _from = from == null ? "na" : BirtHelper.toString(from);
+		String _to = to == null ? "na" : BirtHelper.toString(to);
+		String _user = user == null || user.length() == 0 ? "na" : user;
+
+		String url = jolokiaUrl + "/exec/ephesoft:type=reporting-stats/getManualStepsAccumulationDetails(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)/"
+				+ module + "/" + batchClass + "/" + _from + "/" + _to + "/" + _user;
+		try {
+			String response = query(server, url);
+			JSONObject jsonResponse = new JSONObject(response);
+			if (jsonResponse.getInt("status") == 200)
+				return new JSONArray(jsonResponse.getString("value"));
+		} catch (Exception e) {
+			log.error("An error occured", e);
+		}
+
+		return new JSONArray();
+	}
+
+	@Override
+	public JSONArray getBatchClassExecutionDetails(String serverId, String batchClass, Date from, Date to) throws ParseException {
+		log.debug("getBatchClassExecutionDetails: serverId=" + serverId + "; batchClass=" + batchClass + "; from=" + from + "; to=" + to);
+
+		// Get server
+		Server server = getServer(serverId);
+		String jolokiaUrl = server.getJolokiaUrl();
+		log.debug("Jolokia URL: " + jolokiaUrl);
+
+		String _from = from == null ? "na" : BirtHelper.toString(from);
+		String _to = to == null ? "na" : BirtHelper.toString(to);
+
+		String url = jolokiaUrl + "/exec/ephesoft:type=reporting-stats/getBatchClassExecutionDetails(java.lang.String,java.lang.String,java.lang.String)/" + batchClass + "/" + _from + "/" + _to;
+		try {
+			String response = query(server, url);
+			JSONObject jsonResponse = new JSONObject(response);
+			if (jsonResponse.getInt("status") == 200)
+				return new JSONArray(jsonResponse.getString("value"));
+		} catch (Exception e) {
+			log.error("An error occured", e);
+		}
+
+		return new JSONArray();
+	}
+
+	@Override
+	public JSONArray getArtifactRepartitionDetails(String serverId, String batchClass, String workflowType, String workflowName, Date from, Date to) throws ParseException {
+		log.debug("getArtifactRepartitionDetails: serverId=" + serverId + "; batchClass=" + batchClass + "; workflowType=" + workflowType + "; workflowName=" + workflowName + "; from=" + from
+				+ "; to=" + to);
+
+		// Get server
+		Server server = getServer(serverId);
+		String jolokiaUrl = server.getJolokiaUrl();
+		log.debug("Jolokia URL: " + jolokiaUrl);
+
+		String _from = from == null ? "na" : BirtHelper.toString(from);
+		String _to = to == null ? "na" : BirtHelper.toString(to);
+
+		String url = jolokiaUrl + "/exec/ephesoft:type=reporting-stats/getArtifactRepartitionDetails(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)/"
+				+ batchClass + "/" + workflowType + "/" + workflowName + "/" + _from + "/" + _to;
+		try {
+			String response = query(server, url);
+			JSONObject jsonResponse = new JSONObject(response);
+			if (jsonResponse.getInt("status") == 200)
+				return new JSONArray(jsonResponse.getString("value"));
+		} catch (Exception e) {
+			log.error("An error occured", e);
+		}
+
+		return new JSONArray();
+	}
+
+	@Override
+	public JSONArray getArtifactAccumulationDetails(String serverId, String batchClass, String workflowType, String workflowName, Date from, Date to) throws ParseException {
+		log.debug("getArtifactAccumulationDetails: serverId=" + serverId + "; batchClass=" + batchClass + "; workflowType=" + workflowType + "; workflowName=" + workflowName + "; from=" + from
+				+ "; to=" + to);
+
+		// Get server
+		Server server = getServer(serverId);
+		String jolokiaUrl = server.getJolokiaUrl();
+		log.debug("Jolokia URL: " + jolokiaUrl);
+
+		String _from = from == null ? "na" : BirtHelper.toString(from);
+		String _to = to == null ? "na" : BirtHelper.toString(to);
+
+		String url = jolokiaUrl + "/exec/ephesoft:type=reporting-stats/getArtifactAccumulationDetails(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)/"
+				+ batchClass + "/" + workflowType + "/" + workflowName + "/" + _from + "/" + _to;
+		try {
+			String response = query(server, url);
+			JSONObject jsonResponse = new JSONObject(response);
+			if (jsonResponse.getInt("status") == 200)
+				return new JSONArray(jsonResponse.getString("value"));
+		} catch (Exception e) {
+			log.error("An error occured", e);
+		}
+
+		return new JSONArray();
+	}
+
+	@Override
+	public JSONArray executeQuery(String serverId, String database, String query) throws ParseException {
+		log.debug("executeQuery: serverId=" + serverId + "; database=" + database + "; query=" + query);
+
+		// Get server
+		Server server = getServer(serverId);
+		String jolokiaUrl = server.getJolokiaUrl();
+		log.debug("Jolokia URL: " + jolokiaUrl);
+
+		try {
+			String url = jolokiaUrl + "/exec/ephesoft:type=database-query-executer/executeQuery(java.lang.String,java.lang.String)/" + database + "/" + UriUtils.encodeQueryParam(query, "UTF-8");
 			String response = query(server, url);
 			JSONObject jsonResponse = new JSONObject(response);
 			if (jsonResponse.getInt("status") == 200)

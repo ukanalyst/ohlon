@@ -14,4 +14,11 @@ public interface BirtService {
 	JSONArray getBatchInstances(String serverId, String batchClass, Date from, Date to) throws ParseException;
 	JSONArray getBatchRepartition(String serverId, String batchClass, Date from, Date to) throws ParseException;
 	JSONArray getBatchAccumulation(String serverId, String batchClass, Date from, Date to) throws ParseException;
+	JSONArray getManualStepsExecutionDetails(String serverId, String batchClass, Date from, Date to, String user) throws ParseException;
+	JSONArray getManualStepsRepartitionDetails(String serverId, String module, String batchClass, Date from, Date to, String user) throws ParseException;
+	JSONArray getManualStepsAccumulationDetails(String serverId, String module, String batchClass, Date from, Date to, String user) throws ParseException;
+	JSONArray getBatchClassExecutionDetails(String serverId, String batchClass, Date from, Date to) throws ParseException;
+	JSONArray getArtifactRepartitionDetails(String serverId, String batchClass, String workflowType, String workflowName, Date from, Date to) throws ParseException;
+	JSONArray getArtifactAccumulationDetails(String serverId, String batchClass, String workflowType, String workflowName, Date from, Date to) throws ParseException;
+	JSONArray executeQuery(String serverId, String database, String query) throws ParseException;
 }

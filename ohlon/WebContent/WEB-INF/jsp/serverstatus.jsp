@@ -14,7 +14,11 @@
 	var JOLOKIA_AUTH = "${auth}";
 	var SERVER_NAMES = ${server_name};
 </script>
-
+<style type="text/css">
+	li.page-link[data-pageid='serverstatus'] {
+		background-color: #e7e7e7;
+	}
+</style>
 <link rel="stylesheet" href="./assets/css/pages/serverstatus.css">
 
 </head>

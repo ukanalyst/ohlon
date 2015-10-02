@@ -13,6 +13,7 @@
 				<entry key="ephesoft:type=system-folder" value-ref="jmxSystemFolderExporter" />
 				<entry key="ephesoft:type=application-details" value-ref="jmxApplicationDetails" />
 				<entry key="ephesoft:type=ohlon-logger" value-ref="jmxOhlonLogger" />
+				<entry key="ephesoft:type=database-query-executer" value-ref="jmxDatabaseQueryExecuter" />
 			</map>
 		</property>
 	</bean>
@@ -30,6 +31,9 @@
 		<property name="licenseService" ref="ohlon-license-service" />
 	</bean>
 	<bean class="com.ohlon.ephesoft.jmx.LoggerExporter" id="jmxOhlonLogger">
+		<property name="licenseService" ref="ohlon-license-service" />
+	</bean>
+	<bean class="com.ohlon.ephesoft.jmx.DatabaseQueryExecuter" id="jmxDatabaseQueryExecuter">
 		<property name="licenseService" ref="ohlon-license-service" />
 	</bean>
 

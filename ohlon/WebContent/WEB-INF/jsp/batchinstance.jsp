@@ -15,6 +15,11 @@
 	var DATA_URL = "${dataUrl}";
 	var identifier = "${identifier}";
 </script>
+<style type="text/css">
+	li.page-link[data-pageid='batchinstance'] {
+		background-color: #e7e7e7;
+	}
+</style>
 <script src="./assets/lib/google-code-prettify/src/run_prettify.js"></script>
 <script src="./assets/lib/google-code-prettify/src/prettify.js"></script>
 <script src="./assets/lib/vkbeautify.js"></script>

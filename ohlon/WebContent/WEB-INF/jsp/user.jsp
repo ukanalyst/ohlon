@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Ohlon</title>
-<link rel="icon" type="image/ico" href="./assets/img/favicon.ico"/>
+<link rel="icon" type="image/ico" href="./assets/img/favicon.ico" />
 <link rel="stylesheet" href="assets/lib/bootstrap/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="assets/css/keen-dashboards.css">
 <link rel="stylesheet" href="assets/lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" />
@@ -12,7 +12,11 @@
 	var JOLOKIA_AUTH = "${auth}";
 </script>
 
-<style>
+<style type="text/css">
+li.page-link[data-pageid='user'] {
+	background-color: #e7e7e7;
+}
+
 .form-group {
 	padding: 5px 10px;
 }

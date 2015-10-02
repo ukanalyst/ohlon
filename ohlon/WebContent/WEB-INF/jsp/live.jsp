@@ -11,6 +11,11 @@
 	var JOLOKIA_URL = "${jolokia}";
 	var JOLOKIA_AUTH = "${auth}";
 </script>
+<style type="text/css">
+	li.page-link[data-pageid='live'] {
+		background-color: #e7e7e7;
+	}
+</style>
 <script src="assets/js/pages/live.js"></script>
 
 </head>

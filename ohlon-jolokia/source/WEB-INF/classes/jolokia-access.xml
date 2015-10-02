@@ -42,6 +42,10 @@
 			<attribute mode="read">*</attribute>
 		</mbean>
 		<mbean>
+			<name>ephesoft:type=database-query-executer</name>
+			<operation mode="exec">*</operation>
+		</mbean>
+		<mbean>
 			<name>java.lang:type=OperatingSystem</name>
 			<attribute mode="read">ProcessCpuLoad</attribute>
 		</mbean>
