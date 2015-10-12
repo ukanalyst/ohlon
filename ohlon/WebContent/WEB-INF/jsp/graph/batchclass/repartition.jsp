@@ -7,6 +7,8 @@
 	var bc = "${bc}";
 	var from = "${from}";
 	var to = "${to}";
+	var maxDuration = "${maxDuration}";
+	var graphInterval = "${graphInterval}";
 </script>
 <script type="text/javascript" src="../assets/js/graph/batchclass/repartition.js"></script>
 <script type="text/javascript" src="../assets/lib/canvasjs/canvasjs.min.js"></script>

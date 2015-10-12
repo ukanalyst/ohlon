@@ -298,28 +298,45 @@ public class BatchInstanceStats {
 
 	@ManagedOperation(description = "Get batch class repartition")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
-			@ManagedOperationParameter(name = "to", description = "To Date") })
-	public String getBatchClassRepartition(String identifier, String from, String to) {
-
+			@ManagedOperationParameter(name = "to", description = "To Date"), @ManagedOperationParameter(name = "maxDuration", description = "Max duration (second)"),
+			@ManagedOperationParameter(name = "interval", description = "Interval (second)") })
+	public String getBatchClassRepartition(String identifier, String from, String to, Integer maxDuration, Integer interval) {
 		if (!licenseService.checkLicense()) {
 			log.error("License expired");
 			return null;
 		}
 
-		log.debug("Get Batch Class Repartition: identifier=" + identifier + "; from=" + from + "; to=" + to);
+		log.debug("Get Batch Class Repartition: identifier=" + identifier + "; from=" + from + "; to=" + to + "; maxDuration=" + maxDuration + "; interval=" + interval);
 
 		List<Long> durations = new ArrayList<Long>();
 		try {
 			Connection c = DBUtils.getDBConnection();
 
-			// get the batch instance details
-			String sql = "SELECT bi.last_modified as start,bi.creation_date as finish FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
+			String sql;
 
-			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
-				sql += " AND bi.creation_date >= '" + from + "'";
+			if (DBUtils.isMSSQL()) {
+				sql = "SELECT bi.last_modified as start,bi.creation_date as finish FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
 
-			if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
-				sql += " AND bi.creation_date <= '" + to + "'";
+				if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date >= '" + from + "'";
+
+				if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date <= '" + to + "'";
+
+				if (maxDuration > 0)
+					sql += " AND DATEDIFF(second,bi.creation_date,bi.last_modified) < " + maxDuration;
+			} else {
+				sql = "SELECT bi.last_modified as start,bi.creation_date as finish FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
+
+				if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date >= '" + from + "'";
+
+				if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date <= '" + to + "'";
+
+				if (maxDuration > 0)
+					sql += " AND TIME_TO_SEC(TIMEDIFF(bi.last_modified,bi.creation_date)) < " + maxDuration;
+			}
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
@@ -349,7 +366,7 @@ public class BatchInstanceStats {
 		if (durations.size() > 0) {
 			// Fill blank
 			int currentIndex = 0;
-			int currentStart = 60; // 1 minute
+			int currentStart = interval; // based on the interval
 			int currentNumber = 0;
 			boolean completed = false;
 
@@ -359,12 +376,12 @@ public class BatchInstanceStats {
 					if (currentStart < durations.get(currentIndex)) {
 						// We close the slot, and we create a new value
 						JSONObject m = new JSONObject();
-						m.put("label", (int) (currentStart / 60) + " minute(s)");
+						m.put("label", "< " + getIntervalLabel(currentStart));
 						m.put("count", currentNumber);
 						obj.put(m);
 
 						currentNumber = 0;
-						currentStart += 60; // + 1m
+						currentStart += interval; // based on the interval
 					} else {
 						currentNumber++;
 						currentIndex++;
@@ -377,7 +394,7 @@ public class BatchInstanceStats {
 				if (currentNumber > 0) {
 					// Add the last slot
 					JSONObject m = new JSONObject();
-					m.put("label", (int) (currentStart / 60) + " minute(s)");
+					m.put("label", "< " + getIntervalLabel(currentStart));
 					m.put("count", currentNumber);
 					obj.put(m);
 				}
@@ -390,34 +407,82 @@ public class BatchInstanceStats {
 			return obj.toString();
 		} else
 			return (new JSONArray()).toString();
-
 	}
 
-	@ManagedOperation(description = "Get batch class accumulation")
+	private String getIntervalLabel(int duration) {
+		String label = "";
+		int nbOfMinutes = (int) (duration / 60);
+		int nbOfSeconds = duration - nbOfMinutes * 60;
+		if (duration >= 60) {
+			label = nbOfMinutes + "m";
+		}
+		if (nbOfSeconds > 0) {
+			if (label.length() > 0)
+				label = label + " ";
+			label = label + nbOfSeconds + "s";
+		}
+		return label;
+	}
+
+	@ManagedOperation(description = "Get batch class repartition")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
 			@ManagedOperationParameter(name = "to", description = "To Date") })
-	public String getBatchClassAccumulation(String identifier, String from, String to) {
+	public String getBatchClassRepartition(String identifier, String from, String to) {
 
 		if (!licenseService.checkLicense()) {
 			log.error("License expired");
 			return null;
 		}
 
-		log.debug("Get Batch Class Accumulation: identifier=" + identifier + "; from=" + from + "; to=" + to);
+		log.debug("Get Batch Class Repartition: identifier=" + identifier + "; from=" + from + "; to=" + to);
+
+		return getBatchClassRepartition(identifier, from, to, -1, 60);
+
+	}
+
+	@ManagedOperation(description = "Get batch class accumulation")
+	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
+			@ManagedOperationParameter(name = "to", description = "To Date"), @ManagedOperationParameter(name = "maxDuration", description = "Max duration (second)"),
+			@ManagedOperationParameter(name = "interval", description = "Interval (second)") })
+	public String getBatchClassAccumulation(String identifier, String from, String to, Integer maxDuration, Integer interval) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Batch Class Accumulation: identifier=" + identifier + "; from=" + from + "; to=" + to + "; maxDuration=" + maxDuration + "; interval=" + interval);
 
 		int total = 0;
 		List<Long> durations = new ArrayList<Long>();
 		try {
 			Connection c = DBUtils.getDBConnection();
 
-			// get the batch instance details
-			String sql = "SELECT bi.last_modified as start,bi.creation_date as finish FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
+			String sql;
 
-			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
-				sql += " AND bi.creation_date >= '" + from + "'";
+			if (DBUtils.isMSSQL()) {
+				sql = "SELECT bi.last_modified as start,bi.creation_date as finish FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
 
-			if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
-				sql += " AND bi.creation_date <= '" + to + "'";
+				if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date >= '" + from + "'";
+
+				if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date <= '" + to + "'";
+
+				if (maxDuration > 0)
+					sql += " AND DATEDIFF(second,bi.creation_date,bi.last_modified) < " + maxDuration;
+			} else {
+				sql = "SELECT bi.last_modified as start,bi.creation_date as finish FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
+
+				if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date >= '" + from + "'";
+
+				if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date <= '" + to + "'";
+
+				if (maxDuration > 0)
+					sql += " AND TIME_TO_SEC(TIMEDIFF(bi.last_modified,bi.creation_date)) < " + maxDuration;
+			}
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
@@ -448,7 +513,7 @@ public class BatchInstanceStats {
 		if (durations.size() > 0) {
 			// Fill blank
 			int currentIndex = 0;
-			int currentStart = 60; // 1 minute
+			int currentStart = interval;
 			int currentNumber = 0;
 			boolean completed = false;
 
@@ -458,11 +523,11 @@ public class BatchInstanceStats {
 					if (currentStart < durations.get(currentIndex)) {
 						// We close the slot, and we create a new value
 						JSONObject m = new JSONObject();
-						m.put("label", (int) (currentStart / 60) + " minute(s)");
+						m.put("label", "< " + getIntervalLabel(currentStart));
 						m.put("percentage", (int) (100 * currentNumber / total));
 						obj.put(m);
 
-						currentStart += 60; // + 1m
+						currentStart += interval;
 					} else {
 						currentNumber++;
 						currentIndex++;
@@ -475,7 +540,7 @@ public class BatchInstanceStats {
 				if (currentNumber <= total) {
 					// Add the last slot
 					JSONObject m = new JSONObject();
-					m.put("label", (int) (currentStart / 60) + " minute(s)");
+					m.put("label", "< " + getIntervalLabel(currentStart));
 					m.put("percentage", 100);
 					obj.put(m);
 				}
@@ -490,30 +555,60 @@ public class BatchInstanceStats {
 			return (new JSONArray()).toString();
 	}
 
-	@ManagedOperation(description = "Get batch instance by batch class")
+	@ManagedOperation(description = "Get batch class accumulation")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
 			@ManagedOperationParameter(name = "to", description = "To Date") })
-	public String getBatchInstanceByBatchClass(String identifier, String from, String to) {
+	public String getBatchClassAccumulation(String identifier, String from, String to) {
 
 		if (!licenseService.checkLicense()) {
 			log.error("License expired");
 			return null;
 		}
 
-		log.debug("Get Batch Instance By Batch Class: identifier=" + identifier + "; from=" + from + "; to=" + to);
+		log.debug("Get Batch Class Accumulation: identifier=" + identifier + "; from=" + from + "; to=" + to);
+
+		return getBatchClassAccumulation(identifier, from, to, -1, 60);
+	}
+
+	@ManagedOperation(description = "Get batch instance by batch class")
+	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
+			@ManagedOperationParameter(name = "to", description = "To Date"), @ManagedOperationParameter(name = "start", description = "Start"),
+			@ManagedOperationParameter(name = "limit", description = "Limit") })
+	public String getBatchInstanceByBatchClass(String identifier, String from, String to, Integer start, Integer limit) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Batch Instance By Batch Class: identifier=" + identifier + "; from=" + from + "; to=" + to + "; start=" + start + "; limit=" + limit);
 
 		JSONArray captured = new JSONArray();
 		try {
 			Connection c = DBUtils.getDBConnection();
+			String sql;
+			if (DBUtils.isMSSQL()) {
+				sql = "SELECT * FROM (SELECT ROW_NUMBER() over (ORDER BY bi.creation_date) as _idx_, bi.creation_date as creation_date, bi.last_modified as last_modified, batch_name, bi.identifier as identifier FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
 
-			// get the batch instance details
-			String sql = "SELECT bi.creation_date as creation_date, bi.last_modified as last_modified, batch_name, bi.identifier as identifier FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
+				if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date >= '" + from + "'";
 
-			if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
-				sql += " AND bi.creation_date >= '" + from + "'";
+				if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date <= '" + to + "'";
 
-			if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
-				sql += " AND bi.creation_date <= '" + to + "'";
+				sql += " ) sub WHERE _idx_ > " + start + " AND _idx_ <= " + limit;
+			} else {
+				// get the batch instance details
+				sql = "SELECT bi.creation_date as creation_date, bi.last_modified as last_modified, batch_name, bi.identifier as identifier FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
+
+				if (from != null && from.length() > 0 && !from.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date >= '" + from + "'";
+
+				if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
+					sql += " AND bi.creation_date <= '" + to + "'";
+
+				sql += "LIMIT " + start + "," + limit;
+			}
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
@@ -543,6 +638,21 @@ public class BatchInstanceStats {
 		log.debug("Result: " + captured);
 
 		return captured.toString();
+	}
+
+	@ManagedOperation(description = "Get batch instance by batch class")
+	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
+			@ManagedOperationParameter(name = "to", description = "To Date") })
+	public String getBatchInstanceByBatchClass(String identifier, String from, String to) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Batch Instance By Batch Class: identifier=" + identifier + "; from=" + from + "; to=" + to);
+
+		return getBatchInstanceByBatchClass(identifier, from, to, 0, 20);
 	}
 
 	@ManagedAttribute

@@ -54,6 +54,10 @@ body {
 
 .batchinstance .value {
 	color: #B7C1CB;
+	max-width: 195px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .batchinstance .timeline {

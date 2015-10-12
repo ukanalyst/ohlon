@@ -1,5 +1,5 @@
 window.onload = function() {
-	
+
 	var headers = {};
 	if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
 		headers = {
@@ -10,10 +10,14 @@ window.onload = function() {
 		from = "na"
 	if (to.length == 0)
 		to = "na"
+	if (maxDuration.length == 0)
+		maxDuration = "-1"
+	if (graphInterval.length == 0)
+		graphInterval = "60"
 
 	if (bc && bc.length > 0)
 		$.ajax({
-			url : JOLOKIA_URL + '/exec/ephesoft:type=batchinstance-stats/getBatchClassAccumulation(java.lang.String,java.lang.String,java.lang.String)/' + bc + '/' + from + '/' + to,
+			url : JOLOKIA_URL + '/exec/ephesoft:type=batchinstance-stats/getBatchClassAccumulation(java.lang.String,java.lang.String,java.lang.String,java.lang.Integer,java.lang.Integer)/' + bc + '/' + from + '/' + to + '/' + maxDuration + '/' + graphInterval,
 			dataType : "json",
 			headers : headers,
 			success : function(data) {

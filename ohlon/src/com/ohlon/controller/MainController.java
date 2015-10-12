@@ -154,21 +154,27 @@ public class MainController extends AbstractController {
 
 	@RequestMapping("/graph/batchclass-repartition")
 	public ModelAndView batchClassRepartition(@RequestParam(value = "bc", required = false) String bc, @RequestParam(value = "from", required = false) String from,
-			@RequestParam(value = "to", required = false) String to, @ModelAttribute("currentServer") Server currentServer) {
+			@RequestParam(value = "to", required = false) String to, @RequestParam(value = "maxDuration", required = false) Integer maxDuration,
+			@RequestParam(value = "graphInterval", required = false) Integer graphInterval, @ModelAttribute("currentServer") Server currentServer) {
 		Map<String, Object> params = generateParams(currentServer.getId());
 		params.put("bc", bc);
 		params.put("from", from);
 		params.put("to", to);
+		params.put("maxDuration", maxDuration);
+		params.put("graphInterval", graphInterval);
 		return new ModelAndView("/graph/batchclass/repartition", params);
 	}
 
 	@RequestMapping("/graph/batchclass-accumulation")
 	public ModelAndView batchClassAccumulation(@RequestParam(value = "bc", required = false) String bc, @RequestParam(value = "from", required = false) String from,
-			@RequestParam(value = "to", required = false) String to, @ModelAttribute("currentServer") Server currentServer) {
+			@RequestParam(value = "to", required = false) String to, @RequestParam(value = "maxDuration", required = false) Integer maxDuration,
+			@RequestParam(value = "graphInterval", required = false) Integer graphInterval, @ModelAttribute("currentServer") Server currentServer) {
 		Map<String, Object> params = generateParams(currentServer.getId());
 		params.put("bc", bc);
 		params.put("from", from);
 		params.put("to", to);
+		params.put("maxDuration", maxDuration);
+		params.put("graphInterval", graphInterval);
 		return new ModelAndView("/graph/batchclass/accumulation", params);
 	}
 

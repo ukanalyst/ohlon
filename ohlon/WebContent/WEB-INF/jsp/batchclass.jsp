@@ -52,6 +52,32 @@ li.page-link[data-pageid='batchclass'] {
 							</div>
 							<button type="button" id="refreshReports" class="btn btn-default">Refresh reports</button>
 						</form>
+						<div>
+							<div class="form-group" style="margin-bottom: 0px;">
+								<button type="button" class="btn btn-default btn-lg btn-xs" id="more-parameters-btn">
+									<span class="glyphicon glyphicon-cog" aria-hidden="true"></span> More parameters
+								</button>
+							</div>
+							<form class="form-inline" style="margin-bottom: 0px; display: none;" id="more-parameters">
+								<div class="form-group">
+									<label for="max-duration">Max duration:</label>&nbsp;&nbsp;&nbsp;
+									<div class="input-group">
+										<input type='text' class="form-control" id='max-duration' /><span class="input-group-addon">second(s)</span>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="graph-interval">Graphic Interval:</label>&nbsp;&nbsp;&nbsp;<select class="form-control" id="graph-interval"><option value="1">1 second</option>
+										<option value="5">5 seconds</option>
+										<option value="10">10 seconds</option>
+										<option value="20">20 seconds</option>
+										<option value="30">30 seconds</option>
+										<option value="60" selected="selected">1 minute</option>
+										<option value="300">5 minutes</option>
+										<option value="600">10 minutes</option>
+									</select>
+								</div>
+							</form>
+						</div>
 					</div>
 				</div>
 			</div>

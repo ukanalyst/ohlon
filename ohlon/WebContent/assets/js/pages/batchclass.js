@@ -1,5 +1,9 @@
 window.onload = function() {
 	$('.input-group.date').datetimepicker();
+	$('#more-parameters-btn').click(function() {
+		$('#more-parameters').css("display","block");
+		$('#more-parameters-btn').css("display","none");
+	});
 	
 	var headers = {};
 	if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
@@ -11,6 +15,8 @@ window.onload = function() {
 		var bc = $("#batchclass option:selected").attr("id");
 		var from = $("#from").val();
 		var to = $("#to").val();
+		var maxDuration = $("#max-duration").val();
+		var graphInterval = $("#graph-interval").val();
 
 		var param = "";
 		if (bc && bc.length > 0)
@@ -19,6 +25,10 @@ window.onload = function() {
 			param += "&from=" + moment(from, [ "MM/DD/YYYY h:mm A" ]).format("YYYY-MM-DD HH:mm:ss");
 		if (to && to.length > 0)
 			param += "&to=" + moment(to, [ "MM/DD/YYYY h:mm A" ]).format("YYYY-MM-DD HH:mm:ss");
+		if (graphInterval && graphInterval.length > 0)
+			param += "&graphInterval=" + graphInterval;
+		if (maxDuration && maxDuration.length > 0)
+			param += "&maxDuration=" + maxDuration;
 		if (param.length > 0)
 			param = '?' + param.substring(1);
 
@@ -27,6 +37,9 @@ window.onload = function() {
 		$("#accumulation-graph").attr("src", "graph/batchclass-accumulation" + param);
 		$("#batchinstance").attr("src", "graph/batchclass-batchinstances" + param);
 
+		$('#more-parameters').css("display","none");
+		$('#more-parameters-btn').css("display","block");
+		
 		event.preventDefault();
 	});
 
