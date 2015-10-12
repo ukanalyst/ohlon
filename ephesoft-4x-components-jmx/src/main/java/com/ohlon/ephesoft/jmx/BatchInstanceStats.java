@@ -559,7 +559,6 @@ public class BatchInstanceStats {
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
 			@ManagedOperationParameter(name = "to", description = "To Date") })
 	public String getBatchClassAccumulation(String identifier, String from, String to) {
-
 		if (!licenseService.checkLicense()) {
 			log.error("License expired");
 			return null;
@@ -609,6 +608,8 @@ public class BatchInstanceStats {
 
 				sql += "LIMIT " + start + "," + limit;
 			}
+
+			sql += "LIMIT " + start + "," + limit;
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
