@@ -1,6 +1,9 @@
+var start = 0;
+var limit = 20;
+var headers = {};
+
 window.onload = function() {
-	
-	var headers = {};
+
 	if (JOLOKIA_AUTH != null && JOLOKIA_AUTH.length > 0)
 		headers = {
 			'Authorization' : "Basic " + JOLOKIA_AUTH
@@ -11,22 +14,38 @@ window.onload = function() {
 	if (to.length == 0)
 		to = "na"
 	if (bc && bc.length > 0)
-		$.ajax({
-			url : JOLOKIA_URL + '/exec/ephesoft:type=batchinstance-stats/getBatchInstanceByBatchClass(java.lang.String,java.lang.String,java.lang.String)/' + bc + '/' + from + '/' + to,
-			dataType : "json",
-			headers : headers,
-			success : function(data) {
-				var d = eval(data.value);
-				var html = "";
+		loadMore();
 
-				for (var i = 0; i < d.length; i++) {
-					html += generateHtml(d[i]);
-				}
+	$(".btn.load-more").click(function() {
+		loadMore();
+	});
 
-				$("#container").html(html);
-			}
-		});
 };
+
+function loadMore() {
+	$.ajax({
+		url : JOLOKIA_URL + '/exec/ephesoft:type=batchinstance-stats/getBatchInstanceByBatchClass(java.lang.String,java.lang.String,java.lang.String,java.lang.Integer,java.lang.Integer)/' + bc + '/' + from + '/' + to + '/' + start + '/' + limit,
+		dataType : "json",
+		headers : headers,
+		success : function(data) {
+			var d = eval(data.value);
+			var html = "";
+
+			for (var i = 0; i < d.length; i++) {
+				html += generateHtml(d[i]);
+			}
+
+			$("#container").append(html);
+
+			if (d.length == 0)
+				$(".btn.load-more").css("display", "none");
+			else
+				$(".btn.load-more").css("display", "block");
+
+			start = start + limit;
+		}
+	});
+}
 
 function generateHtml(bi) {
 
@@ -44,7 +63,7 @@ function generateInnerHtml(bi) {
 	var end = moment(bi.end).toDate();
 
 	var generateLink = typeof (pages) !== 'undefined' && (pages.indexOf('batchinstance') != -1 || pages.length == 0);
-	
+
 	var html = "";
 
 	html += "<div class='details'>";

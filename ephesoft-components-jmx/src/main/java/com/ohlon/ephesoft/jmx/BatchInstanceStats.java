@@ -484,15 +484,16 @@ public class BatchInstanceStats {
 
 	@ManagedOperation(description = "Get batch instance by batch class")
 	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
-			@ManagedOperationParameter(name = "to", description = "To Date") })
-	public String getBatchInstanceByBatchClass(String identifier, String from, String to) {
+			@ManagedOperationParameter(name = "to", description = "To Date"), @ManagedOperationParameter(name = "start", description = "Start"),
+			@ManagedOperationParameter(name = "limit", description = "Limit") })
+	public String getBatchInstanceByBatchClass(String identifier, String from, String to, Integer start, Integer limit) {
 
 		if (!licenseService.checkLicense()) {
 			log.error("License expired");
 			return null;
 		}
 
-		log.debug("Get Batch Instance By Batch Class: identifier=" + identifier + "; from=" + from + "; to=" + to);
+		log.debug("Get Batch Instance By Batch Class: identifier=" + identifier + "; from=" + from + "; to=" + to + "; start=" + start + "; limit=" + limit);
 
 		JSONArray captured = new JSONArray();
 		try {
@@ -506,6 +507,8 @@ public class BatchInstanceStats {
 
 			if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
 				sql += " AND bi.creation_date <= '" + to + "'";
+			
+			sql += "LIMIT " + start + "," + limit;
 
 			PreparedStatement statement = c.prepareStatement(sql);
 			statement.setString(1, identifier);
@@ -535,6 +538,21 @@ public class BatchInstanceStats {
 		log.debug("Result: " + captured);
 
 		return captured.toString();
+	}
+
+	@ManagedOperation(description = "Get batch instance by batch class")
+	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier."), @ManagedOperationParameter(name = "from", description = "From Date"),
+			@ManagedOperationParameter(name = "to", description = "To Date") })
+	public String getBatchInstanceByBatchClass(String identifier, String from, String to) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Batch Instance By Batch Class: identifier=" + identifier + "; from=" + from + "; to=" + to);
+
+		return getBatchInstanceByBatchClass(identifier, from, to, 0, 20);
 	}
 
 	@ManagedAttribute
