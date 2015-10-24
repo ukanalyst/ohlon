@@ -600,7 +600,7 @@ public class BatchInstanceStats {
 				if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
 					sql += " AND bi.creation_date <= '" + to + "'";
 
-				sql += "LIMIT " + start + "," + limit;
+				sql += " LIMIT " + start + "," + limit;
 			}
 
 			PreparedStatement statement = c.prepareStatement(sql);
