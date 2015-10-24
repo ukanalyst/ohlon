@@ -1,10 +1,14 @@
 <style>
 .footer-bottom .container {
 	width: 100%;
+	background-color: rgb(242,242,242);
+	border-top: 1px solid;
+	border-color: #e7e7e7;
+	padding-top: 10px;
 }
 </style>
 
-<div class="footer-bottom">
+<div class="footer-bottom navbar-fixed-bottom">
 	<div class="container">
 		<p class="pull-left">Copyright © Ohlon 2015. All right reserved.</p>
 		<div class="pull-right">
