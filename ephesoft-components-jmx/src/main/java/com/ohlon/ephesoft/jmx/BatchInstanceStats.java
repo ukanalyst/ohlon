@@ -589,7 +589,9 @@ public class BatchInstanceStats {
 				if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
 					sql += " AND bi.creation_date <= '" + to + "'";
 
-				sql += " ) sub WHERE _idx_ > " + start + " AND _idx_ <= " + limit;
+				sql += " ) sub";
+				if (limit > -1)
+					sql += " WHERE _idx_ > " + start + " AND _idx_ <= " + limit;
 			} else {
 				// get the batch instance details
 				sql = "SELECT bi.creation_date as creation_date, bi.last_modified as last_modified, batch_name, bi.identifier as identifier FROM batch_instance AS bi LEFT JOIN batch_class bc ON bi.batch_class_id = bc.id WHERE bi.batch_status = 'FINISHED' AND bc.identifier = ?";
@@ -600,7 +602,8 @@ public class BatchInstanceStats {
 				if (to != null && to.length() > 0 && !to.equalsIgnoreCase("na"))
 					sql += " AND bi.creation_date <= '" + to + "'";
 
-				sql += " LIMIT " + start + "," + limit;
+				if (limit > -1)
+					sql += " LIMIT " + start + "," + limit;
 			}
 
 			PreparedStatement statement = c.prepareStatement(sql);
