@@ -79,7 +79,8 @@ public class BirtServiceImpl implements BirtService {
 		String _from = from == null ? "na" : BirtHelper.toString(from);
 		String _to = to == null ? "na" : BirtHelper.toString(to);
 
-		String url = jolokiaUrl + "/exec/ephesoft:type=batchinstance-stats/getBatchInstanceByBatchClass(java.lang.String,java.lang.String,java.lang.String)/" + batchClass + "/" + _from + "/" + _to;
+		String url = jolokiaUrl + "/exec/ephesoft:type=batchinstance-stats/getBatchInstanceByBatchClass(java.lang.String,java.lang.String,java.lang.String,java.lang.Integer,java.lang.Integer)/"
+				+ batchClass + "/" + _from + "/" + _to + "/-1/-1";
 		try {
 			String response = query(server, url);
 			JSONObject jsonResponse = new JSONObject(response);
