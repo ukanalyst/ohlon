@@ -21,10 +21,12 @@ public class LicenseServiceImpl implements LicenseService {
 	private long MAX_DELAY = 6 * 60 * 60 * 1000; // 6 hours
 	private String LICENSE_SERVER_URL = "https://license.ohlon.com/license/check";
 	private boolean IS_ACTIVE;
+	private String MESSAGE;
 
 	public void init() {
 		lastCheck = Calendar.getInstance();
 		IS_ACTIVE = false;
+		MESSAGE = "";
 		checkLicense(true);
 	}
 
@@ -48,6 +50,7 @@ public class LicenseServiceImpl implements LicenseService {
 			if (macAdress.length() == 0) {
 				log.error("Impossible to retrieve the MAC address.");
 				IS_ACTIVE = false;
+				MESSAGE = "Error to retrieve the MAC address.";
 				return false;
 			}
 
@@ -59,11 +62,11 @@ public class LicenseServiceImpl implements LicenseService {
 				data.put("mac", macAdress);
 
 				log.debug("Query body: " + data);
-				
+
 				// Allow access even though certificate is self signed
 				Protocol easyHttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 443);
 				Protocol.registerProtocol("https", easyHttps);
-
+				
 				HttpClient client = new HttpClient();
 				PostMethod post = new PostMethod(LICENSE_SERVER_URL);
 				post.setRequestEntity(new StringRequestEntity(data.toString()));
@@ -74,6 +77,7 @@ public class LicenseServiceImpl implements LicenseService {
 
 				if (responseStatus != 200) {
 					IS_ACTIVE = false;
+					MESSAGE = "Error connecting to the license server.";
 				} else {
 					// Get the body
 					String body = IOUtils.toString(post.getResponseBodyAsStream());
@@ -83,9 +87,11 @@ public class LicenseServiceImpl implements LicenseService {
 					JSONObject jsonResponse = new JSONObject(body);
 					if (jsonResponse.has("valid")) {
 						IS_ACTIVE = jsonResponse.getBoolean("valid");
+						MESSAGE = jsonResponse.getString("message");
 					} else {
 						log.error("There is no 'valid' key in the body.");
 						IS_ACTIVE = false;
+						MESSAGE = "Error parsing query result from the license server.";
 					}
 
 					if (jsonResponse.has("message"))
@@ -130,5 +136,9 @@ public class LicenseServiceImpl implements LicenseService {
 			log.error("An error occured", e);
 		}
 		return key;
+	}
+	
+	public String getMessage() {
+		return MESSAGE;
 	}
 }

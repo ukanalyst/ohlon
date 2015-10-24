@@ -12,3 +12,32 @@
 #server-status.serverKO {
 	background-image: url(../../img/pages/live/server-ko.png);
 }
+
+.more-information-panel {
+	margin-left: 5px;
+}
+
+.more-information-content {
+	padding: 5px;
+	padding-left: 10px;
+	border: 1px solid #e7e7e7;
+	display: none;
+}
+
+#more-information {
+	padding-top: 8px;
+	cursor: pointer;
+}
+
+#more-information span {
+	padding: 5px;
+	background-color: #e7e7e7;
+	color: #333;
+	border-radius: 3px;
+	font-size: 10px;
+}
+
+#expiration-message {
+	color: #777;
+	font-style: italic;
+}

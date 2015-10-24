@@ -11,6 +11,15 @@ window.onload = function() {
 	setInterval(function() {
 		refreshServerStatus()
 	}, updateServerStatusInterval);
+
+	$("#more-information").click(function() {
+		var html = $("#more-information span").html();
+		if (html == "More...")
+			$("#more-information span").html("Less...");
+		else
+			$("#more-information span").html("More...");
+		$(".more-information-content").toggle();
+	});
 }
 
 function refreshServerStatus() {
@@ -25,6 +34,7 @@ function refreshServerStatus() {
 				if (d) {
 					$("#ephesoft-version").html(d["ephesoft.version"]);
 					$("#os-name").html(d["os.name"]);
+					$("#expiration-message").html(d["ohlon.expiration"]);
 
 					$("#server-status").removeClass("serverKO");
 					$("#server-status").addClass("serverOK");

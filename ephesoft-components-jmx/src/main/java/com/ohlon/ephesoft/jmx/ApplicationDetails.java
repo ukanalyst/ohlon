@@ -33,6 +33,7 @@ public class ApplicationDetails {
 			ApplicationConfigProperties properties = ApplicationConfigProperties.getApplicationConfigProperties();
 			data.put("ephesoft.version", properties.getProperty("ephesoft.product.version"));
 			data.put("os.name", System.getProperty("os.name"));
+			data.put("ohlon.expiration", licenseService.getMessage());
 
 		} catch (Exception e) {
 			log.error(e.getMessage());

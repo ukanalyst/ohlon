@@ -12,9 +12,9 @@
 	var JOLOKIA_AUTH = "${auth}";
 </script>
 <style type="text/css">
-	li.page-link[data-pageid='live'] {
-		background-color: #e7e7e7;
-	}
+li.page-link[data-pageid='live'] {
+	background-color: #e7e7e7;
+}
 </style>
 <script src="assets/js/pages/live.js"></script>
 
@@ -36,6 +36,14 @@
 							</div>
 							<div style="display: table-row">
 								<span style="padding-left: 75px;">OS: </span><span id="os-name"></span>
+							</div>
+						</div>
+						<div class="more-information-panel">
+							<div id="more-information">
+								<span>More...</span>
+							</div>
+							<div class="more-information-content">
+								<span>Ohlon License: </span><span id="expiration-message"></span>
 							</div>
 						</div>
 					</div>
