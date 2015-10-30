@@ -72,6 +72,12 @@ public class MainController extends AbstractController {
 		currentServer.setId(serverId);
 		return new ModelAndView("reporting", generateParams(currentServer.getId()));
 	}
+	
+	@RequestMapping("/reporting-heatmap")
+	public ModelAndView reportingHeatMap(@RequestParam(value = "id", required = false) String serverId, @ModelAttribute("currentServer") Server currentServer) {
+		currentServer.setId(serverId);
+		return new ModelAndView("reportingHeatMap", generateParams(currentServer.getId()));
+	}
 
 	@RequestMapping("/user")
 	public ModelAndView user(@RequestParam(value = "id", required = false) String serverId, @ModelAttribute("currentServer") Server currentServer) {

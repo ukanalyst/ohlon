@@ -44,20 +44,25 @@ div[role='navigation'] .container {
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
 	<div class="container">
 		<div class="navbar-header">
-			<a target="_blank" href="http://www.ohlon.com"><img style="padding:5px;" src="./assets/img/app-header.png" /></a>
+			<a target="_blank" href="http://www.ohlon.com"><img style="padding: 5px;" src="./assets/img/app-header.png" /></a>
 		</div>
 		<div class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
 
-				<li class="page-link" style="display:none;" data-pageid="live"><a href="./live">Live</a></li>
-				<li class="page-link" style="display:none;" data-pageid="error"><a href="./error">Error</a></li>
-				<li class="page-link" style="display:none;" data-pageid="error"><div class="error-indicator">0</div></li>
-				<li class="page-link" style="display:none;" data-pageid="reporting"><a href="./reporting">Analysis</a></li>
-				<li class="page-link" style="display:none;" data-pageid="batchclass"><a href="./batchclass">Batch Class</a></li>
-				<li class="page-link" style="display:none;" data-pageid="batchinstance"><a href="./batchinstance">Batch Instance</a></li>
-				<li class="page-link" style="display:none;" data-pageid="user"><a href="./user">Manual Steps</a></li>
-				<li class="page-link" style="display:none;" data-pageid="serverstatus"><a href="./serverstatus">Server Status</a></li>
-				<li class="page-link" style="display:none;" data-pageid="reportgenerator"><a href="./reportgenerator">Report</a></li>
+				<li class="page-link" style="display: none;" data-pageid="live"><a href="./live">Live</a></li>
+				<li class="page-link" style="display: none;" data-pageid="error"><a href="./error">Error</a></li>
+				<li class="page-link" style="display: none;" data-pageid="error"><div class="error-indicator">0</div></li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Analysis <span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li class="page-link" style="display: none;" data-pageid="reporting"><a href="./reporting">Detailed View</a></li>
+						<li class="page-link" style="display: none;" data-pageid="reporting-heatmap"><a href="./reporting-heatmap">Heat Map</a></li>
+					</ul></li>
+				<li class="page-link" style="display: none;" data-pageid="batchclass"><a href="./batchclass">Batch Class</a></li>
+				<li class="page-link" style="display: none;" data-pageid="batchinstance"><a href="./batchinstance">Batch Instance</a></li>
+				<li class="page-link" style="display: none;" data-pageid="user"><a href="./user">Manual Steps</a></li>
+				<li class="page-link" style="display: none;" data-pageid="serverstatus"><a href="./serverstatus">Server Status</a></li>
+				<li class="page-link" style="display: none;" data-pageid="reportgenerator"><a href="./reportgenerator">Report</a></li>
 
 			</ul>
 			<ul class="nav navbar-nav navbar-right">

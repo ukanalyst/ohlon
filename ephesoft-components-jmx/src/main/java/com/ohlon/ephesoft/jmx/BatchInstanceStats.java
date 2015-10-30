@@ -651,6 +651,82 @@ public class BatchInstanceStats {
 		return getBatchInstanceByBatchClass(identifier, from, to, 0, 20);
 	}
 
+	@ManagedOperation(description = "Get batch class structure definition")
+	@ManagedOperationParameters({ @ManagedOperationParameter(name = "identifier", description = "Batch Class Identifier.") })
+	public String getBatchClassStructure(String identifier) {
+
+		if (!licenseService.checkLicense()) {
+			log.error("License expired");
+			return null;
+		}
+
+		log.debug("Get Batch Class Structure: identifier=" + identifier);
+
+		JSONArray result = new JSONArray();
+		try {
+			Connection c = DBUtils.getDBConnection();
+			String sql = "SELECT bcm.id as id, workflow_name FROM batch_class_module bcm LEFT JOIN batch_class bc ON bc.id = bcm.batch_class_id WHERE bc.identifier = ? ORDER BY order_number;";
+			PreparedStatement statement = c.prepareStatement(sql);
+			statement.setString(1, identifier);
+
+			log.debug(statement.toString());
+
+			ResultSet rs = statement.executeQuery();
+
+			while (rs.next()) {
+				JSONObject module = new JSONObject();
+				module.put("name", rs.getString("workflow_name"));
+				module.put("plugins", getModuleDefinition(rs.getInt("id")));
+				result.put(module);
+			}
+
+			// Close the query
+			rs.close();
+			statement.close();
+			c.close();
+
+		} catch (Exception e) {
+			log.error("An error occured", e);
+		}
+
+		log.debug("Result: " + result);
+
+		return result.toString();
+	}
+
+	private JSONArray getModuleDefinition(int moduleIdentifier) {
+
+		log.debug("Get Module Definition: moduleIdentifier=" + moduleIdentifier);
+
+		JSONArray result = new JSONArray();
+		try {
+			Connection c = DBUtils.getDBConnection();
+			String sql = "SELECT workflow_name FROM batch_class_plugin bcp LEFT JOIN plugin p ON bcp.plugin_id = p.id WHERE batch_class_module_id = ? ORDER BY order_number;";
+			PreparedStatement statement = c.prepareStatement(sql);
+			statement.setInt(1, moduleIdentifier);
+
+			log.debug(statement.toString());
+
+			ResultSet rs = statement.executeQuery();
+
+			while (rs.next()) {
+				result.put(rs.getString("workflow_name"));
+			}
+
+			// Close the query
+			rs.close();
+			statement.close();
+			c.close();
+
+		} catch (Exception e) {
+			log.error("An error occured", e);
+		}
+
+		log.debug("Result: " + result);
+
+		return result;
+	}
+
 	@ManagedAttribute
 	public String getBatchInstancesByBC() {
 
