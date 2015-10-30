@@ -81,7 +81,7 @@ window.onload = function() {
 
 							s.rect(MODULE_X, currentYModule, MODULE_WIDTH, MODULE_HEIGHT, 10, 10).attr({
 								strokeWidth : 1,
-								style : "fill:" + getColor(scoreModules[module.name].score) + ";stroke:" + getColor(scoreModules[module.name].score),
+								style : "fill:" + getColor(scoreModules[module.name.toLowerCase()].score) + ";stroke:" + getColor(scoreModules[module.name.toLowerCase()].score),
 								fillOpacity : 0.2,
 								strokeOpacity : 1
 
@@ -165,7 +165,7 @@ window.onload = function() {
 
 								s.rect(currentXPlugin, currentYPlugin, PLUGIN_WIDTH, PLUGIN_HEIGHT, 10, 10).attr({
 									strokeWidth : 1,
-									style : "fill:" + getColor(scorePlugins[pluginName].score) + ";stroke:" + getColor(scorePlugins[pluginName].score),
+									style : "fill:" + getColor(scorePlugins[pluginName.toLowerCase()].score) + ";stroke:" + getColor(scorePlugins[pluginName.toLowerCase()].score),
 									fillOpacity : 0.2,
 									strokeOpacity : 1
 								});
@@ -306,7 +306,7 @@ function convertDuration(duration) {
 
 function getReportingData(data, name) {
 	for (var i = 0; i < data.length; i++) {
-		if (data[i].WORKFLOW_NAME == name)
+		if (data[i].WORKFLOW_NAME.toLowerCase() == name.toLowerCase())
 			return data[i];
 	}
 	return null;
@@ -327,8 +327,8 @@ function computeScore(list, data) {
 		// Get the value
 		var _d = getReportingData(data, list[i]);
 		if (_d != null) {
-			if (scores[list[i]] == null)
-				scores[list[i]] = {};
+			if (scores[list[i].toLowerCase()] == null)
+				scores[list[i].toLowerCase()] = {};
 
 			if (min[0] == -1 || _d.MINDURATION < min[0])
 				min[0] = _d.MINDURATION;
@@ -346,9 +346,10 @@ function computeScore(list, data) {
 				max[1] = _d.MAXDURATION;
 
 			// Save the value
-			scores[list[i]].min = _d.MINDURATION;
-			scores[list[i]].avg = _d.AVGDURATION;
-			scores[list[i]].max = _d.MAXDURATION;
+			scores[list[i].toLowerCase()].name = list[i];
+			scores[list[i].toLowerCase()].min = _d.MINDURATION;
+			scores[list[i].toLowerCase()].avg = _d.AVGDURATION;
+			scores[list[i].toLowerCase()].max = _d.MAXDURATION;
 
 		} else
 			console.log("Error retrieving stats for: " + list[i]);
@@ -356,7 +357,7 @@ function computeScore(list, data) {
 
 	// Then, we can compute the score
 	for (var i = 0; i < list.length; i++) {
-		var d = scores[list[i]];
+		var d = scores[list[i].toLowerCase()];
 
 		if (d != null) {
 			d.scoreMin = (d.min - min[0]) / (min[1] - min[0]);
@@ -365,7 +366,7 @@ function computeScore(list, data) {
 
 			d.score = (d.scoreMin + d.scoreAvg + d.scoreMax) / 3;
 		} else {
-			scores[list[i]] = {
+			scores[list[i].toLowerCase()] = {
 				score : 0
 			};
 		}

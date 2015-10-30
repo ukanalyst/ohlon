@@ -130,13 +130,13 @@ public class ReportingStats {
 			int batch_class_id = getBatchClassDbId(identifier);
 
 			// Query the main database to find batch instances
-			String sql = "SELECT BUSINESS_KEY_ AS WORKFLOW_NAME, DURATION_ AS DURATION, COUNT(*) AS COUNT, MIN(DURATION_) AS MIN, MAX(DURATION_) AS MAX, SUM(DURATION_) AS SUM";
+			String sql = "SELECT MIN(BUSINESS_KEY_) AS WORKFLOW_NAME, COUNT(*) AS COUNT, MIN(DURATION_) AS MIN, MAX(DURATION_) AS MAX, SUM(DURATION_) AS SUM";
 			sql += " FROM batch_instance bi LEFT JOIN ACT_HI_PROCINST proc ON proc.NAME_ = bi.identifier";
 			sql += " WHERE bi.batch_class_id = ?";
 
 			// Specific case for SQLServer
 			if (DBUtils.isMSSQL()) {
-				sql = "SELECT BUSINESS_KEY_ AS WORKFLOW_NAME, DURATION_ AS DURATION, COUNT(*) AS COUNT, MIN(DURATION_) AS MIN, MAX(DURATION_) AS MAX, SUM(DURATION_) AS SUM";
+				sql = "SELECT MIN(BUSINESS_KEY_) AS WORKFLOW_NAME, COUNT(*) AS COUNT, MIN(DURATION_) AS MIN, MAX(DURATION_) AS MAX, SUM(DURATION_) AS SUM";
 				sql += " FROM batch_instance bi LEFT JOIN ACT_HI_PROCINST procinst ON (procinst.BUSINESS_KEY_ like bi.identifier + '.%' OR procinst.BUSINESS_KEY_ = bi.identifier)";
 				sql += " WHERE bi.batch_class_id = ?";
 			}

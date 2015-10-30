@@ -1,6 +1,7 @@
 package com.ohlon.ephesoft.logger;
 
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Level;
 import org.apache.log4j.spi.LoggingEvent;
 
 public class OhlonLogger extends AppenderSkeleton {
@@ -25,26 +26,28 @@ public class OhlonLogger extends AppenderSkeleton {
 
 	@Override
 	protected void append(LoggingEvent event) {
-		int index = event.getLoggerName().lastIndexOf('.');
-		String loggerName;
+		if (event.getLevel() == Level.ERROR) {
+			int index = event.getLoggerName().lastIndexOf('.');
+			String loggerName;
 
-		if (index > -1) {
-			loggerName = event.getLoggerName().substring(index + 1);
-		} else {
-			loggerName = event.getLoggerName();
+			if (index > -1) {
+				loggerName = event.getLoggerName().substring(index + 1);
+			} else {
+				loggerName = event.getLoggerName();
+			}
+
+			LogEntry log = new LogEntry();
+			log.setId(id++);
+			log.setHost(event.getProperty("host"));
+			log.setIp(event.getProperty("ip"));
+			log.setLoggerName(loggerName);
+			log.setMessage((String) event.getMessage());
+			log.setThreadName(event.getThreadName());
+			log.setTimeStamp(event.getTimeStamp());
+			log.setLogLevel(event.getLevel().toString());
+			log.setThrowable(event.getThrowableStrRep());
+			logList.insert(log);
 		}
-
-		LogEntry log = new LogEntry();
-		log.setId(id++);
-		log.setHost(event.getProperty("host"));
-		log.setIp(event.getProperty("ip"));
-		log.setLoggerName(loggerName);
-		log.setMessage((String) event.getMessage());
-		log.setThreadName(event.getThreadName());
-		log.setTimeStamp(event.getTimeStamp());
-		log.setLogLevel(event.getLevel().toString());
-		log.setThrowable(event.getThrowableStrRep());
-		logList.insert(log);
 	}
 
 }

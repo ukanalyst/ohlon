@@ -26,7 +26,7 @@ public class DBUtils {
 			InputStream is = new FileInputStream(propFile);
 			p.load(is);
 			
-			IS_MSSQL = "org.hibernate.dialect.SQLServerDialect".equalsIgnoreCase((String) p.get("dataSource.dialect"));
+			IS_MSSQL = "com.ephesoft.dcma.da.common.EphesoftSQLServerDialect".equalsIgnoreCase((String) p.get("dataSource.dialect"));
 			log.info("Is MSSQL: " + IS_MSSQL);
 
 			// get the connection information from the properties file
