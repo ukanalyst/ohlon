@@ -12,10 +12,6 @@
             "label": "Manual Step analysis",
             "description": "This report displays statistics about manual step execution.",
             "path": "report/source/manualsteps.rptdesign"
-        },{
-			"label": "I9 Data Analysis",
-            "description": "This report displays statistics about manual step execution.",
-            "path": "report/source/i9-us-map.rptdesign"
         }
     ]
 }
