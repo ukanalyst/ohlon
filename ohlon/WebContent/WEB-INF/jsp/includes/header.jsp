@@ -52,8 +52,7 @@ div[role='navigation'] .container {
 				<li class="page-link" style="display: none;" data-pageid="live"><a href="./live">Live</a></li>
 				<li class="page-link" style="display: none;" data-pageid="error"><a href="./error">Error</a></li>
 				<li class="page-link" style="display: none;" data-pageid="error"><div class="error-indicator">0</div></li>
-				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Analysis <span class="caret"></span></a>
+				<li class="dropdown" style="display: none;"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Analysis <span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li class="page-link" style="display: none;" data-pageid="reporting"><a href="./reporting">Detailed View</a></li>
 						<li class="page-link" style="display: none;" data-pageid="reporting-heatmap"><a href="./reporting-heatmap">Heat Map</a></li>

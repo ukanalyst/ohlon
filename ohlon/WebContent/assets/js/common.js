@@ -31,6 +31,7 @@ $(document).ready(function() {
 		if (pages == null || pages.length == 0) {
 			// Enable all pages
 			$("li.page-link").css("display", "");
+			$("li.dropdown").css("display", "");
 		} else {
 			$("li.page-link").attr("toDelete", true);
 
